@@ -1,10 +1,11 @@
 # Этап сборки
-FROM node:18-alpine as build
-
+FROM node:18-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
-COPY . .
+
+COPY app/frontend/package.json app/frontend/package-lock.json* ./
+RUN if [ -f package-lock.json ]; then npm ci --no-audit --no-fund; else npm install --no-audit --no-fund; fi
+COPY app/frontend/ ./
+
 RUN npm run build
 
 # Этап продакшена
@@ -14,7 +15,7 @@ FROM nginx:alpine
 COPY --from=build /app/build /usr/share/nginx/html
 
 # Копируем конфигурацию nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
