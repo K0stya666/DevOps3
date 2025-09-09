@@ -1,0 +1,79 @@
+---
+- name: Install Docker and Setup Container Learning
+  hosts: library_vm
+  become: yes
+  vars:
+    target_user: anastasiiadzhev
+    learning_dir: /home/anastasiiadzhev/docker-learning
+
+  tasks:
+    - name: Update package cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install Docker prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - software-properties-common
+          - python3-pip
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb https://download.docker.com/linux/ubuntu jammy stable"
+        state: present
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user to docker group
+      user:
+        name: "{{ target_user }}"
+        groups: docker
+        append: yes
+
+    - name: Create learning directory
+      file:
+        path: "{{ learning_dir }}"
+        state: directory
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+        mode: '0755'
+
+    - name: Verify Docker installation
+      command: docker --version
+      become_user: "{{ target_user }}"
+      register: docker_version
+
+    - name: Test Docker
+      command: docker run --rm hello-world
+      become_user: "{{ target_user }}"
+      register: docker_test
+
+    - name: Display results
+      debug:
+        msg:
+          - "Docker installed: {{ docker_version.stdout }}"
+          - "Test successful for user: {{ target_user }}"

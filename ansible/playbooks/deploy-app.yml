@@ -1,0 +1,47 @@
+---
+- name: Deploy Library Application
+  hosts: library_vm
+  become: no
+  
+  tasks:
+    - name: Copy docker-compose.yml
+      copy:
+        src: "{{ playbook_dir }}/../../docker-compose-prod.yml"
+        dest: /home/ubuntu/docker-compose.yml
+
+    - name: Copy init.sql
+      copy:
+        src: "{{ playbook_dir }}/../../init.sql"
+        dest: /home/ubuntu/init.sql
+
+    - name: Pull Docker images
+      command: docker-compose pull
+      args:
+        chdir: /home/ubuntu
+
+    - name: Start application
+      command: docker-compose up -d
+      args:
+        chdir: /home/ubuntu
+
+    - name: Wait for application to start
+      pause:
+        seconds: 30
+
+    - name: Check containers status
+      command: docker ps
+      register: docker_ps
+
+    - name: Display containers
+      debug:
+        msg: "{{ docker_ps.stdout_lines }}"
+
+    - name: Test API endpoint
+      uri:
+        url: http://localhost:8080/api/books
+        method: GET
+      register: api_response
+
+    - name: Display API response
+      debug:
+        msg: "API Response: {{ api_response.json }}"

@@ -1,0 +1,94 @@
+---
+- name: Create VM in Yandex Cloud using yc CLI
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    vm_name: "library-app-vm-ansible"
+    zone: "ru-central1-a"
+    folder_id: "b1ghuulab94793d4h4eq"
+    subnet_id: "e9bieunfbfdi9o7qdl8m"
+
+  tasks:
+    - name: Check if VM already exists
+      shell: yc compute instance get {{ vm_name }} --format json
+      register: vm_check
+      failed_when: false
+      changed_when: false
+
+    - name: Delete existing VM if present
+      shell: yc compute instance delete {{ vm_name }}
+      when: vm_check.rc == 0
+      
+    - name: Wait for VM deletion
+      pause:
+        seconds: 10
+      when: vm_check.rc == 0
+
+    - name: Create VM using yc CLI
+      shell: |
+        yc compute instance create \
+          --name {{ vm_name }} \
+          --zone {{ zone }} \
+          --network-interface subnet-id={{ subnet_id }},nat-ip-version=ipv4 \
+          --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-2204-lts,size=20GB \
+          --ssh-key ~/.ssh/id_rsa.pub \
+          --memory 2GB \
+          --cores 2 \
+          --hostname {{ vm_name }} \
+          --format json
+      register: vm_creation
+      
+    - name: Parse VM creation result
+      set_fact:
+        vm_info: "{{ vm_creation.stdout | from_json }}"
+
+    - name: Extract VM external IP
+      set_fact:
+        vm_external_ip: "{{ vm_info.network_interfaces[0].primary_v4_address.one_to_one_nat.address }}"
+
+    - name: Display VM information
+      debug:
+        msg:
+          - "VM Created Successfully via Ansible + yc CLI!"
+          - "VM ID: {{ vm_info.id }}"
+          - "VM Name: {{ vm_info.name }}"
+          - "External IP: {{ vm_external_ip }}"
+          - "Internal IP: {{ vm_info.network_interfaces[0].primary_v4_address.address }}"
+          - "Zone: {{ vm_info.zone_id }}"
+
+    - name: Save VM IP to file
+      copy:
+        content: "{{ vm_external_ip }}"
+        dest: "/tmp/ansible_vm_ip.txt"
+
+    - name: Create Ansible inventory for new VM
+      copy:
+        content: |
+          all:
+            hosts:
+              library_vm:
+                ansible_host: {{ vm_external_ip }}
+                ansible_user: ubuntu
+                ansible_ssh_private_key_file: ~/.ssh/id_rsa
+                ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+            vars:
+              ansible_python_interpreter: /usr/bin/python3
+        dest: "ansible/inventory/ansible_created_vm.yml"
+
+    - name: Wait for SSH to become available
+      wait_for:
+        host: "{{ vm_external_ip }}"
+        port: 22
+        delay: 30
+        timeout: 300
+        state: started
+        msg: "SSH not available after 5 minutes"
+
+    - name: Test SSH connection
+      shell: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ubuntu@{{ vm_external_ip }} "echo 'SSH connection successful'"
+      register: ssh_test
+      
+    - name: Display SSH test result
+      debug:
+        msg: "{{ ssh_test.stdout }}"

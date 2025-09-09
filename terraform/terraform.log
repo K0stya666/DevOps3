@@ -1,0 +1,230 @@
+2025-09-04T22:56:11.369+0200 [INFO]  Terraform version: 1.13.1
+2025-09-04T22:56:11.370+0200 [DEBUG] using github.com/hashicorp/go-tfe v1.74.1
+2025-09-04T22:56:11.370+0200 [DEBUG] using github.com/hashicorp/hcl/v2 v2.24.0
+2025-09-04T22:56:11.370+0200 [DEBUG] using github.com/hashicorp/terraform-svchost v0.1.1
+2025-09-04T22:56:11.370+0200 [DEBUG] using github.com/zclconf/go-cty v1.16.3
+2025-09-04T22:56:11.370+0200 [INFO]  Go runtime version: go1.24.5
+2025-09-04T22:56:11.370+0200 [INFO]  CLI args: []string{"terraform", "apply", "-auto-approve"}
+2025-09-04T22:56:11.370+0200 [DEBUG] Attempting to open CLI config file: /root/.terraformrc
+2025-09-04T22:56:11.370+0200 [DEBUG] File doesn't exist, but doesn't need to. Ignoring.
+2025-09-04T22:56:11.370+0200 [DEBUG] ignoring non-existing provider search directory terraform.d/plugins
+2025-09-04T22:56:11.370+0200 [DEBUG] ignoring non-existing provider search directory /root/.terraform.d/plugins
+2025-09-04T22:56:11.370+0200 [DEBUG] ignoring non-existing provider search directory /root/.local/share/terraform/plugins
+2025-09-04T22:56:11.370+0200 [DEBUG] ignoring non-existing provider search directory /usr/local/share/terraform/plugins
+2025-09-04T22:56:11.370+0200 [DEBUG] ignoring non-existing provider search directory /usr/share/terraform/plugins
+2025-09-04T22:56:11.370+0200 [DEBUG] ignoring non-existing provider search directory /var/lib/snapd/desktop/terraform/plugins
+2025-09-04T22:56:11.371+0200 [INFO]  CLI command args: []string{"apply", "-auto-approve"}
+2025-09-04T22:56:12.025+0200 [DEBUG] checking for provisioner in "."
+2025-09-04T22:56:12.028+0200 [DEBUG] checking for provisioner in "/usr/bin"
+2025-09-04T22:56:12.029+0200 [INFO]  backend/local: starting Apply operation
+2025-09-04T22:56:12.032+0200 [DEBUG] created provider logger: level=debug
+2025-09-04T22:56:12.032+0200 [INFO]  provider: configuring client automatic mTLS
+2025-09-04T22:56:12.049+0200 [DEBUG] provider: starting plugin: path=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 args=[".terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0"]
+2025-09-04T22:56:12.050+0200 [DEBUG] provider: plugin started: path=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 pid=56056
+2025-09-04T22:56:12.050+0200 [DEBUG] provider: waiting for RPC address: plugin=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0
+2025-09-04T22:56:12.158+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: configuring server automatic mTLS: timestamp="2025-09-04T22:56:12.158+0200"
+2025-09-04T22:56:12.178+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: plugin address: address=/tmp/plugin568069134 network=unix timestamp="2025-09-04T22:56:12.178+0200"
+2025-09-04T22:56:12.179+0200 [DEBUG] provider: using plugin: version=6
+2025-09-04T22:56:12.226+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: Initializing YQ connection schema: @module=yandex tf_mux_provider="*proto6server.Server" @caller=github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon/base_connection_resource.go:53 tf_provider_addr=yandex-cloud/yandex tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c tf_rpc=GetProviderSchema timestamp="2025-09-04T22:56:12.225+0200"
+2025-09-04T22:56:12.227+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: Initializing YQ connection schema: tf_rpc=GetProviderSchema @module=yandex tf_mux_provider="*proto6server.Server" tf_provider_addr=yandex-cloud/yandex tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c @caller=github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon/base_connection_resource.go:53 timestamp="2025-09-04T22:56:12.226+0200"
+2025-09-04T22:56:12.228+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: Initializing VPC SecurityGroupRule schema: @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule/resource.go:56 tf_mux_provider="*proto6server.Server" tf_provider_addr=yandex-cloud/yandex tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c @module=yandex tf_rpc=GetProviderSchema timestamp="2025-09-04T22:56:12.227+0200"
+2025-09-04T22:56:12.229+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: Initializing opensearch data source schema: @module=yandex tf_mux_provider="*proto6server.Server" tf_provider_addr=yandex-cloud/yandex tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c tf_rpc=GetProviderSchema @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/resource.go:482 timestamp="2025-09-04T22:56:12.228+0200"
+2025-09-04T22:56:12.229+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: Initializing DatasphereProject schema.: @module=yandex tf_provider_addr=yandex-cloud/yandex tf_rpc=GetProviderSchema @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project/resource.go:504 tf_mux_provider="*proto6server.Server" tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c timestamp="2025-09-04T22:56:12.229+0200"
+2025-09-04T22:56:12.230+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: Initializing YQ binding schema: @caller=github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon/base_binding_resource.go:72 @module=yandex tf_mux_provider="*proto6server.Server" tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c tf_provider_addr=yandex-cloud/yandex tf_rpc=GetProviderSchema timestamp="2025-09-04T22:56:12.230+0200"
+2025-09-04T22:56:12.241+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: Initializing YQ connection schema: @module=yandex tf_mux_provider="*proto6server.Server" tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c tf_rpc=GetProviderSchema tf_provider_addr=yandex-cloud/yandex @caller=github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon/base_connection_resource.go:53 timestamp="2025-09-04T22:56:12.233+0200"
+2025-09-04T22:56:12.245+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: Initializing YQ binding schema: tf_rpc=GetProviderSchema @caller=github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon/base_binding_resource.go:72 tf_mux_provider="*proto6server.Server" tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c @module=yandex tf_provider_addr=yandex-cloud/yandex timestamp="2025-09-04T22:56:12.236+0200"
+2025-09-04T22:56:12.245+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: Initializing YQ connection schema: @module=yandex tf_mux_provider="*proto6server.Server" tf_rpc=GetProviderSchema @caller=github.com/yandex-cloud/terraform-provider-yandex/pkg/yqcommon/base_connection_resource.go:53 tf_provider_addr=yandex-cloud/yandex tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c timestamp="2025-09-04T22:56:12.236+0200"
+2025-09-04T22:56:12.246+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: Initializing DatasphereCommunity resource schema.: @module=yandex tf_provider_addr=yandex-cloud/yandex tf_rpc=GetProviderSchema tf_mux_provider="*proto6server.Server" tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community/resource.go:352 timestamp="2025-09-04T22:56:12.237+0200"
+2025-09-04T22:56:12.258+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: Initializing Redis data source schema: tf_mux_provider="*proto6server.Server" tf_provider_addr=yandex-cloud/yandex tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c tf_rpc=GetProviderSchema @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_redis_cluster_v2/datasource.go:66 @module=yandex timestamp="2025-09-04T22:56:12.245+0200"
+2025-09-04T22:56:12.259+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: Initializing VPC SecurityGroupRule datasource schema: @module=yandex tf_provider_addr=yandex-cloud/yandex tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/vpc_security_group_rule/datasource.go:38 tf_mux_provider="*proto6server.Server" tf_rpc=GetProviderSchema timestamp="2025-09-04T22:56:12.248+0200"
+2025-09-04T22:56:12.261+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: Initializing opensearch data source schema: tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/mdb_opensearch_cluster/datasource.go:98 @module=yandex tf_mux_provider="*proto6server.Server" tf_provider_addr=yandex-cloud/yandex tf_rpc=GetProviderSchema timestamp="2025-09-04T22:56:12.252+0200"
+2025-09-04T22:56:12.262+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: Initializing project resource schema: @module=yandex tf_mux_provider="*proto6server.Server" tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c tf_rpc=GetProviderSchema @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_project/datasource.go:29 tf_provider_addr=yandex-cloud/yandex timestamp="2025-09-04T22:56:12.253+0200"
+2025-09-04T22:56:12.262+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: Initializing datasphere community schema: tf_mux_provider="*proto6server.Server" tf_provider_addr=yandex-cloud/yandex tf_req_id=08f008c1-34ac-08ac-71c5-cbb63616f15c tf_rpc=GetProviderSchema @caller=github.com/yandex-cloud/terraform-provider-yandex/yandex-framework/services/datasphere_community/datasource.go:29 @module=yandex timestamp="2025-09-04T22:56:12.253+0200"
+2025-09-04T22:56:12.621+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2025-09-04T22:56:12.627+0200 [INFO]  provider: plugin process exited: plugin=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 id=56056
+2025-09-04T22:56:12.633+0200 [DEBUG] provider: plugin exited
+2025-09-04T22:56:12.635+0200 [DEBUG] Building and walking validate graph
+2025-09-04T22:56:12.636+0200 [DEBUG] ProviderTransformer: "yandex_compute_instance.library-vm" (*terraform.NodeValidatableResource) needs provider["registry.terraform.io/yandex-cloud/yandex"]
+2025-09-04T22:56:12.637+0200 [DEBUG] ReferenceTransformer: "yandex_compute_instance.library-vm" references: []
+2025-09-04T22:56:12.637+0200 [DEBUG] ReferenceTransformer: "output.external_ip (expand)" references: [yandex_compute_instance.library-vm]
+2025-09-04T22:56:12.637+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/yandex-cloud/yandex\"]" references: []
+2025-09-04T22:56:12.638+0200 [DEBUG] Starting graph walk: walkValidate
+2025-09-04T22:56:12.640+0200 [DEBUG] created provider logger: level=debug
+2025-09-04T22:56:12.640+0200 [INFO]  provider: configuring client automatic mTLS
+2025-09-04T22:56:12.667+0200 [DEBUG] provider: starting plugin: path=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 args=[".terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0"]
+2025-09-04T22:56:12.668+0200 [DEBUG] provider: plugin started: path=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 pid=56064
+2025-09-04T22:56:12.668+0200 [DEBUG] provider: waiting for RPC address: plugin=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0
+2025-09-04T22:56:12.870+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: configuring server automatic mTLS: timestamp="2025-09-04T22:56:12.869+0200"
+2025-09-04T22:56:12.916+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: plugin address: address=/tmp/plugin1195862038 network=unix timestamp="2025-09-04T22:56:12.916+0200"
+2025-09-04T22:56:12.916+0200 [DEBUG] provider: using plugin: version=6
+2025-09-04T22:56:13.001+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2025-09-04T22:56:13.017+0200 [INFO]  provider: plugin process exited: plugin=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 id=56064
+2025-09-04T22:56:13.019+0200 [DEBUG] provider: plugin exited
+2025-09-04T22:56:13.020+0200 [INFO]  backend/local: apply calling Plan
+2025-09-04T22:56:13.020+0200 [DEBUG] Building and walking plan graph for NormalMode
+2025-09-04T22:56:13.020+0200 [DEBUG] ProviderTransformer: "yandex_compute_instance.library-vm (expand)" (*terraform.nodeExpandPlannableResource) needs provider["registry.terraform.io/yandex-cloud/yandex"]
+2025-09-04T22:56:13.021+0200 [DEBUG] ReferenceTransformer: "yandex_compute_instance.library-vm (expand)" references: []
+2025-09-04T22:56:13.021+0200 [DEBUG] ReferenceTransformer: "output.external_ip (expand)" references: [yandex_compute_instance.library-vm (expand)]
+2025-09-04T22:56:13.021+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/yandex-cloud/yandex\"]" references: []
+2025-09-04T22:56:13.021+0200 [DEBUG] Starting graph walk: walkPlan
+2025-09-04T22:56:13.022+0200 [DEBUG] created provider logger: level=debug
+2025-09-04T22:56:13.022+0200 [INFO]  provider: configuring client automatic mTLS
+2025-09-04T22:56:13.042+0200 [DEBUG] provider: starting plugin: path=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 args=[".terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0"]
+2025-09-04T22:56:13.043+0200 [DEBUG] provider: plugin started: path=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 pid=56071
+2025-09-04T22:56:13.043+0200 [DEBUG] provider: waiting for RPC address: plugin=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0
+2025-09-04T22:56:13.194+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: configuring server automatic mTLS: timestamp="2025-09-04T22:56:13.194+0200"
+2025-09-04T22:56:13.213+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: plugin address: address=/tmp/plugin371162886 network=unix timestamp="2025-09-04T22:56:13.213+0200"
+2025-09-04T22:56:13.213+0200 [DEBUG] provider: using plugin: version=6
+2025-09-04T22:56:14.141+0200 [DEBUG] Resource instance state not found for node "yandex_compute_instance.library-vm", instance yandex_compute_instance.library-vm
+2025-09-04T22:56:14.141+0200 [DEBUG] ReferenceTransformer: "yandex_compute_instance.library-vm" references: []
+2025-09-04T22:56:14.142+0200 [DEBUG] refresh: yandex_compute_instance.library-vm: no state, so not refreshing
+2025-09-04T22:56:14.166+0200 [WARN]  Provider "registry.terraform.io/yandex-cloud/yandex" produced an invalid plan for yandex_compute_instance.library-vm, but we are tolerating it because it is using the legacy plugin SDK.
+    The following problems may be the cause of any confusing errors from downstream operations:
+      - .network_acceleration_type: planned value cty.StringVal("standard") for a non-computed attribute
+      - .network_interface[0].ipv4: planned value cty.True for a non-computed attribute
+      - .placement_policy: attribute representing nested block must not be unknown itself; set nested attribute values to unknown instead
+      - .boot_disk[0].auto_delete: planned value cty.True for a non-computed attribute
+      - .metadata_options: attribute representing nested block must not be unknown itself; set nested attribute values to unknown instead
+      - .scheduling_policy: attribute representing nested block must not be unknown itself; set nested attribute values to unknown instead
+2025-09-04T22:56:14.169+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2025-09-04T22:56:14.179+0200 [INFO]  provider: plugin process exited: plugin=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 id=56071
+2025-09-04T22:56:14.181+0200 [DEBUG] provider: plugin exited
+2025-09-04T22:56:14.182+0200 [DEBUG] building apply graph to check for errors
+2025-09-04T22:56:14.182+0200 [DEBUG] Resource state not found for node "yandex_compute_instance.library-vm", instance yandex_compute_instance.library-vm
+2025-09-04T22:56:14.183+0200 [DEBUG] ProviderTransformer: "yandex_compute_instance.library-vm (expand)" (*terraform.nodeExpandApplyableResource) needs provider["registry.terraform.io/yandex-cloud/yandex"]
+2025-09-04T22:56:14.183+0200 [DEBUG] ProviderTransformer: "yandex_compute_instance.library-vm" (*terraform.NodeApplyableResourceInstance) needs provider["registry.terraform.io/yandex-cloud/yandex"]
+2025-09-04T22:56:14.183+0200 [DEBUG] ReferenceTransformer: "yandex_compute_instance.library-vm (expand)" references: []
+2025-09-04T22:56:14.183+0200 [DEBUG] ReferenceTransformer: "output.external_ip (expand)" references: [yandex_compute_instance.library-vm (expand) yandex_compute_instance.library-vm yandex_compute_instance.library-vm]
+2025-09-04T22:56:14.183+0200 [DEBUG] ReferenceTransformer: "yandex_compute_instance.library-vm" references: []
+2025-09-04T22:56:14.183+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/yandex-cloud/yandex\"]" references: []
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+
+Terraform will perform the following actions:
+
+[1m  # yandex_compute_instance.library-vm[0m will be created
+[0m  [32m+[0m[0m resource "yandex_compute_instance" "library-vm" {
+      [32m+[0m[0m created_at                = (known after apply)
+      [32m+[0m[0m folder_id                 = (known after apply)
+      [32m+[0m[0m fqdn                      = (known after apply)
+      [32m+[0m[0m gpu_cluster_id            = (known after apply)
+      [32m+[0m[0m hardware_generation       = (known after apply)
+      [32m+[0m[0m hostname                  = (known after apply)
+      [32m+[0m[0m id                        = (known after apply)
+      [32m+[0m[0m maintenance_grace_period  = (known after apply)
+      [32m+[0m[0m maintenance_policy        = (known after apply)
+      [32m+[0m[0m metadata                  = {
+          [32m+[0m[0m "user-data" = <<-EOT
+                #cloud-config
+                users:
+                  - name: ubuntu
+                    groups: sudo
+                    shell: /bin/bash
+                    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+                    ssh-authorized-keys:
+                      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDPUSoPjhpuw4GwuW117hn7MPOo8KL6C2JGDDysPfXOKah+5ZPDOixXAyw35nQjGGcWbb8vb9MiotCUWOnqBqzT60rE/bTUuJ37ZfoIO8V4I3Xl0pkPIucKHeQmiX+teC/SyU2vmeym1rWaAQct934uQepqWwQRVUfxrycVj3Mb2+hy4HjdEI+rZXrp04IRS1EBelzPPBl6BCNNok+3BvgcKW8ICt0fG74hv6YxXNCX55lxvflftTMj6hdLojFScBkbYaxtSwVZYHUCdgDDeBnR+bE8rZyS9dGfgrYop4vYW9aVksL2LjJbJLjRiPcsJTYM2dOnjtCdjOXyog/9amcNf3+dEDZ2PJLyfEKOLIBwYxBp7V539KdMuY+I1AdiF2rJEvorLq7JzLXHBzoOqk9pBYOdQNOtvwW1VG+BG0I3kqJIFFF60pLpTZYKssdwVNenCDHei3XCRzHdwPZjr2pSYZdu0zSZLdLVRh/lMkGUCzvj2vfCXk7viSGhNWItNJ+iYamJspf40ZNG+XdjrAF+yDHuxqiQV1Wj1fRAGPqQkR8pvkciHpCmsXvjhx4NLboxUp66TjScqBiJgtV4EPfvynK3nLImCSCNihtrcjhDH0kjbkZFg5x8CTNmMAxPx6wgFy5fpZCzOHuN3FScVHKUj6Ak1l/p4I6HeY6O+8cs7w== root@vm15332818.example.com
+            EOT
+        }
+      [32m+[0m[0m name                      = "library-app-vm"
+      [32m+[0m[0m network_acceleration_type = "standard"
+      [32m+[0m[0m platform_id               = "standard-v2"
+      [32m+[0m[0m service_account_id        = (known after apply)
+      [32m+[0m[0m status                    = (known after apply)
+      [32m+[0m[0m zone                      = "ru-central1-a"
+
+      [32m+[0m[0m boot_disk {
+          [32m+[0m[0m auto_delete = true
+          [32m+[0m[0m device_name = (known after apply)
+          [32m+[0m[0m disk_id     = (known after apply)
+          [32m+[0m[0m mode        = (known after apply)
+
+          [32m+[0m[0m initialize_params {
+              [32m+[0m[0m block_size  = (known after apply)
+              [32m+[0m[0m description = (known after apply)
+              [32m+[0m[0m image_id    = "fd8kdq6d0p8sij7h5qe3"
+              [32m+[0m[0m name        = (known after apply)
+              [32m+[0m[0m size        = 10
+              [32m+[0m[0m snapshot_id = (known after apply)
+              [32m+[0m[0m type        = "network-hdd"
+            }
+        }
+
+      [32m+[0m[0m metadata_options (known after apply)
+
+      [32m+[0m[0m network_interface {
+          [32m+[0m[0m index          = (known after apply)
+          [32m+[0m[0m ip_address     = (known after apply)
+          [32m+[0m[0m ipv4           = true
+          [32m+[0m[0m ipv6           = (known after apply)
+          [32m+[0m[0m ipv6_address   = (known after apply)
+          [32m+[0m[0m mac_address    = (known after apply)
+          [32m+[0m[0m nat            = true
+          [32m+[0m[0m nat_ip_address = (known after apply)
+          [32m+[0m[0m nat_ip_version = (known after apply)
+          [32m+[0m[0m subnet_id      = "e9bieunfbfdi9o7qdl8m"
+        }
+
+      [32m+[0m[0m placement_policy (known after apply)
+
+      [32m+[0m[0m resources {
+          [32m+[0m[0m core_fraction = 20
+          [32m+[0m[0m cores         = 2
+          [32m+[0m[0m memory        = 2
+        }
+
+      [32m+[0m[0m scheduling_policy (known after apply)
+    }
+
+[1mPlan:[0m 1 to add, 0 to change, 0 to destroy.
+[0m
+Changes to Outputs:
+  [32m+[0m[0m external_ip = (known after apply)
+2025-09-04T22:56:14.203+0200 [INFO]  backend/local: apply calling Apply
+2025-09-04T22:56:14.203+0200 [DEBUG] Building and walking apply graph for NormalMode plan
+2025-09-04T22:56:14.203+0200 [DEBUG] Resource state not found for node "yandex_compute_instance.library-vm", instance yandex_compute_instance.library-vm
+2025-09-04T22:56:14.203+0200 [DEBUG] ProviderTransformer: "yandex_compute_instance.library-vm (expand)" (*terraform.nodeExpandApplyableResource) needs provider["registry.terraform.io/yandex-cloud/yandex"]
+2025-09-04T22:56:14.203+0200 [DEBUG] ProviderTransformer: "yandex_compute_instance.library-vm" (*terraform.NodeApplyableResourceInstance) needs provider["registry.terraform.io/yandex-cloud/yandex"]
+2025-09-04T22:56:14.204+0200 [DEBUG] ReferenceTransformer: "yandex_compute_instance.library-vm (expand)" references: []
+2025-09-04T22:56:14.204+0200 [DEBUG] ReferenceTransformer: "output.external_ip (expand)" references: [yandex_compute_instance.library-vm (expand) yandex_compute_instance.library-vm yandex_compute_instance.library-vm]
+2025-09-04T22:56:14.204+0200 [DEBUG] ReferenceTransformer: "yandex_compute_instance.library-vm" references: []
+2025-09-04T22:56:14.204+0200 [DEBUG] ReferenceTransformer: "provider[\"registry.terraform.io/yandex-cloud/yandex\"]" references: []
+2025-09-04T22:56:14.205+0200 [DEBUG] Starting graph walk: walkApply
+2025-09-04T22:56:14.205+0200 [DEBUG] created provider logger: level=debug
+2025-09-04T22:56:14.205+0200 [INFO]  provider: configuring client automatic mTLS
+2025-09-04T22:56:14.222+0200 [DEBUG] provider: starting plugin: path=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 args=[".terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0"]
+2025-09-04T22:56:14.224+0200 [DEBUG] provider: plugin started: path=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 pid=56078
+2025-09-04T22:56:14.224+0200 [DEBUG] provider: waiting for RPC address: plugin=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0
+2025-09-04T22:56:14.420+0200 [INFO]  provider.terraform-provider-yandex_v0.157.0: configuring server automatic mTLS: timestamp="2025-09-04T22:56:14.420+0200"
+2025-09-04T22:56:14.486+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: plugin address: address=/tmp/plugin656023692 network=unix timestamp="2025-09-04T22:56:14.486+0200"
+2025-09-04T22:56:14.487+0200 [DEBUG] provider: using plugin: version=6
+2025-09-04T22:56:20.472+0200 [WARN]  Provider "registry.terraform.io/yandex-cloud/yandex" produced an invalid plan for yandex_compute_instance.library-vm, but we are tolerating it because it is using the legacy plugin SDK.
+    The following problems may be the cause of any confusing errors from downstream operations:
+      - .network_acceleration_type: planned value cty.StringVal("standard") for a non-computed attribute
+      - .network_interface[0].ipv4: planned value cty.True for a non-computed attribute
+      - .placement_policy: attribute representing nested block must not be unknown itself; set nested attribute values to unknown instead
+      - .boot_disk[0].auto_delete: planned value cty.True for a non-computed attribute
+      - .metadata_options: attribute representing nested block must not be unknown itself; set nested attribute values to unknown instead
+      - .scheduling_policy: attribute representing nested block must not be unknown itself; set nested attribute values to unknown instead
+[0m[1myandex_compute_instance.library-vm: Creating...[0m[0m
+2025-09-04T22:56:20.473+0200 [INFO]  Starting apply for yandex_compute_instance.library-vm
+2025-09-04T22:56:20.475+0200 [DEBUG] yandex_compute_instance.library-vm: applying the planned Create change
+2025-09-04T22:56:20.482+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: [DEBUG] setting computed for "placement_policy" from ComputedKeys
+2025-09-04T22:56:20.483+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: [DEBUG] setting computed for "hardware_generation" from ComputedKeys
+2025-09-04T22:56:20.483+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: [DEBUG] setting computed for "metadata_options" from ComputedKeys
+2025-09-04T22:56:20.483+0200 [DEBUG] provider.terraform-provider-yandex_v0.157.0: [DEBUG] setting computed for "scheduling_policy" from ComputedKeys
+2025-09-04T22:56:21.001+0200 [ERROR] provider.terraform-provider-yandex_v0.157.0: Response contains error diagnostic: diagnostic_detail="" diagnostic_severity=ERROR diagnostic_summary="Error while requesting API to create instance: client-request-id = 1db6802b-d91b-4658-ab1e-bc8b231ca960 client-trace-id = 93a34147-15f8-492f-be04-41d62e2d30e3 rpc error: code = PermissionDenied desc = Permission denied to resource-manager.folder b1ghuulab94793d4h4eq" tf_req_id=6a45387d-8193-23b3-aff6-af5887beee40 tf_resource_type=yandex_compute_instance @caller=github.com/hashicorp/terraform-plugin-go@v0.23.0/tfprotov6/internal/diag/diagnostics.go:58 tf_proto_version=6.6 tf_provider_addr=yandex-cloud/yandex tf_rpc=ApplyResourceChange @module=sdk.proto timestamp="2025-09-04T22:56:20.998+0200"
+2025-09-04T22:56:21.004+0200 [DEBUG] State storage *statemgr.Filesystem declined to persist a state snapshot
+2025-09-04T22:56:21.004+0200 [ERROR] vertex "yandex_compute_instance.library-vm" error: Error while requesting API to create instance: client-request-id = 1db6802b-d91b-4658-ab1e-bc8b231ca960 client-trace-id = 93a34147-15f8-492f-be04-41d62e2d30e3 rpc error: code = PermissionDenied desc = Permission denied to resource-manager.folder b1ghuulab94793d4h4eq
+[31m╷[0m[0m
+[31m│[0m [0m[1m[31mError: [0m[0m[1mError while requesting API to create instance: client-request-id = 1db6802b-d91b-4658-ab1e-bc8b231ca960 client-trace-id = 93a34147-15f8-492f-be04-41d62e2d30e3 rpc error: code = PermissionDenied desc = Permission denied to resource-manager.folder b1ghuulab94793d4h4eq[0m
+[31m│[0m [0m
+[31m│[0m [0m[0m  with yandex_compute_instance.library-vm,
+[31m│[0m [0m  on main.tf line 17, in resource "yandex_compute_instance" "library-vm":
+[31m│[0m [0m  17: resource "yandex_compute_instance" "library-vm" [4m{[0m[0m
+[31m│[0m [0m
+[31m╵[0m[0m
+2025-09-04T22:56:21.023+0200 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
+2025-09-04T22:56:21.038+0200 [INFO]  provider: plugin process exited: plugin=.terraform/providers/registry.terraform.io/yandex-cloud/yandex/0.157.0/linux_amd64/terraform-provider-yandex_v0.157.0 id=56078
+2025-09-04T22:56:21.039+0200 [DEBUG] provider: plugin exited

@@ -1,0 +1,28 @@
+---
+- name: Destroy VM in Yandex Cloud
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    vm_name: "library-app-vm-ansible"
+
+  tasks:
+    - name: Delete VM
+      shell: yc compute instance delete {{ vm_name }} --async
+      register: deletion_result
+      failed_when: false
+
+    - name: Display deletion result
+      debug:
+        msg: "VM {{ vm_name }} deletion initiated"
+      when: deletion_result.rc == 0
+
+    - name: Cleanup inventory file
+      file:
+        path: "ansible/inventory/ansible_created_vm.yml"
+        state: absent
+
+    - name: Cleanup IP file
+      file:
+        path: "/tmp/ansible_vm_ip.txt"
+        state: absent

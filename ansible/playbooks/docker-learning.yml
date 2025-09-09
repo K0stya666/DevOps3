@@ -1,0 +1,80 @@
+---
+- name: Docker Container Learning Session
+  hosts: library_vm
+  vars:
+    target_user: anastasiiadzhev
+    learning_dir: /home/anastasiiadzhev/docker-learning
+
+  tasks:
+    - name: Create Docker examples
+      copy:
+        dest: "{{ learning_dir }}/{{ item.name }}"
+        content: "{{ item.content }}"
+        owner: "{{ target_user }}"
+        group: "{{ target_user }}"
+        mode: "{{ item.mode | default('0644') }}"
+      loop:
+        - name: "Dockerfile.nginx"
+          content: |
+            FROM nginx:alpine
+            COPY index.html /usr/share/nginx/html/
+            EXPOSE 80
+        - name: "index.html"
+          content: |
+            <!DOCTYPE html>
+            <html>
+            <head><title>Docker Lab 2</title></head>
+            <body>
+                <h1>Docker Container - Lab 2 DevOps</h1>
+                <p>Deployed via Ansible Configuration Management</p>
+                <p>Technologies: Terraform + Ansible + Docker</p>
+            </body>
+            </html>
+        - name: "docker-commands.sh"
+          mode: "0755"
+          content: |
+            #!/bin/bash
+            # Активируем Docker группу
+            newgrp docker << 'DOCKER_SESSION'
+            
+            echo "=== Docker Learning Commands ==="
+            docker --version
+            
+            echo "1. Hello World test:"
+            docker run --rm hello-world
+            
+            echo "2. Building custom nginx:"
+            cd {{ learning_dir }}
+            docker build -f Dockerfile.nginx -t lab-nginx .
+            
+            echo "3. Running nginx container:"
+            docker run -d -p 8080:80 --name lab-nginx lab-nginx
+            
+            echo "4. Checking containers:"
+            docker ps
+            
+            echo "5. Container logs:"
+            docker logs lab-nginx
+            
+            echo "=== Access your app ==="
+            echo "URL: http://158.160.188.227:8080"
+            
+            echo "=== Useful Docker commands ==="
+            echo "docker ps              # List running containers"
+            echo "docker images          # List images"
+            echo "docker stop lab-nginx  # Stop container"
+            echo "docker rm lab-nginx    # Remove container"
+            echo "docker exec -it lab-nginx /bin/sh  # Enter container"
+            
+            DOCKER_SESSION
+
+    - name: Run Docker learning script
+      shell: |
+        cd {{ learning_dir }}
+        bash docker-commands.sh
+      become_user: "{{ target_user }}"
+      register: docker_learning_output
+
+    - name: Display learning results
+      debug:
+        msg: "{{ docker_learning_output.stdout_lines }}"
