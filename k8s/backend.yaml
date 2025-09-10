@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: library-backend
+  namespace: library
+  labels: { app: library-backend }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: library-backend }
+  template:
+    metadata:
+      labels: { app: library-backend }
+    spec:
+      containers:
+        - name: backend
+          image: library-backend:1.0.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_HOST
+              valueFrom: { configMapKeyRef: { name: db-config, key: DB_HOST } }
+            - name: DB_PORT
+              valueFrom: { configMapKeyRef: { name: db-config, key: DB_PORT } }
+            - name: DB_NAME
+              valueFrom: { configMapKeyRef: { name: db-config, key: DB_NAME } }
+            - name: DB_USER
+              valueFrom: { configMapKeyRef: { name: db-config, key: DB_USER } }
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: db-secret, key: DB_PASSWORD } }
+            - name: PORT
+              value: "8080"
+
+            - name: PGHOST
+              valueFrom: { configMapKeyRef: { name: db-config, key: DB_HOST } }
+            - name: PGPORT
+              valueFrom: { configMapKeyRef: { name: db-config, key: DB_PORT } }
+            - name: PGDATABASE
+              valueFrom: { configMapKeyRef: { name: db-config, key: DB_NAME } }
+            - name: PGUSER
+              valueFrom: { configMapKeyRef: { name: db-config, key: DB_USER } }
+            - name: PGPASSWORD
+              valueFrom: { secretKeyRef: { name: db-secret, key: DB_PASSWORD } }
+          readinessProbe:
+            httpGet:
+              path: /api/books
+#              path: health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 6
+
+          livenessProbe:
+            httpGet:
+#              path: /api/books
+              path: /health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: library-backend
+  namespace: library
+spec:
+  selector: { app: library-backend }
+  ports:
+    - port: 80
+      targetPort: 8080

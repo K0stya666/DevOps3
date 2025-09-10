@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: library-frontend
+  namespace: library
+  labels: { app: library-frontend }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: library-frontend }
+  template:
+    metadata:
+      labels: { app: library-frontend }
+    spec:
+      containers:
+        - name: frontend
+          image: library-frontend:1.0
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: library-frontend
+  namespace: library
+spec:
+  selector: { app: library-frontend }
+  ports:
+    - port: 80
+      targetPort: 80

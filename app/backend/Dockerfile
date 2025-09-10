@@ -9,6 +9,8 @@ RUN npm ci --only=production
 # Копируем исходный код
 COPY . .
 
+ENV PORT=8080
+
 # Открываем порт
 EXPOSE 8080
 
