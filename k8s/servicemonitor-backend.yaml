@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: library-backend-sm
+  namespace: monitoring
+spec:
+  namespaceSelector:
+    matchNames: ["library"]
+  selector:
+    matchLabels:
+      app: library-backend
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

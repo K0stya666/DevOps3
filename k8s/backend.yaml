@@ -31,7 +31,6 @@ spec:
               valueFrom: { secretKeyRef: { name: db-secret, key: DB_PASSWORD } }
             - name: PORT
               value: "8080"
-
             - name: PGHOST
               valueFrom: { configMapKeyRef: { name: db-config, key: DB_HOST } }
             - name: PGPORT
@@ -42,25 +41,25 @@ spec:
               valueFrom: { configMapKeyRef: { name: db-config, key: DB_USER } }
             - name: PGPASSWORD
               valueFrom: { secretKeyRef: { name: db-secret, key: DB_PASSWORD } }
+
           readinessProbe:
             httpGet:
-              path: /api/books
-#              path: health
+              path: /health
               port: 8080
-            initialDelaySeconds: 15
+            initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 2
             failureThreshold: 6
 
           livenessProbe:
             httpGet:
-#              path: /api/books
               path: /health
               port: 8080
             initialDelaySeconds: 40
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 3
+
           resources:
             requests:
               cpu: "100m"
@@ -74,8 +73,11 @@ kind: Service
 metadata:
   name: library-backend
   namespace: library
+  labels: { app: library-backend }
 spec:
   selector: { app: library-backend }
   ports:
-    - port: 80
+    - name: http
+      port: 80
       targetPort: 8080
+  type: ClusterIP
