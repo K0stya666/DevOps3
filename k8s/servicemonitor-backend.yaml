@@ -3,6 +3,8 @@ kind: ServiceMonitor
 metadata:
   name: library-backend-sm
   namespace: monitoring
+  labels:
+    release: kube-prom
 spec:
   namespaceSelector:
     matchNames: ["library"]
