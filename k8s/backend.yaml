@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: library-backend:1.0.2
+          image: ghcr.io/k0stya666/library-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
