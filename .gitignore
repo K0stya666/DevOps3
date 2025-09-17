@@ -7,4 +7,6 @@ minikube-linux-amd64
 *.tar
 *.tar.gz
 .idea/
+app/backend/node_modules/
+app/frontend/node_modules/
 
