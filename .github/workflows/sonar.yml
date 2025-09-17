@@ -1,0 +1,70 @@
+name: SonarCloud Scan (monorepo)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  sonar:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - name: backend
+            workdir: app/backend
+          - name: frontend
+            workdir: app/frontend
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.component.workdir }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # для корректного сравнения нового кода
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: |
+            app/backend/package-lock.json
+            app/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
+
+      - name: Run tests with coverage
+        run: npm test -- --coverage
+
+      - name: SonarQube Scan
+        id: scan
+        uses: SonarSource/sonarqube-scan-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+
+      - name: SonarQube Quality Gate
+        uses: SonarSource/sonarqube-quality-gate-action@v1
+        with:
+          scanMetadataReportFile: ${{ steps.scan.outputs.scanMetadataReportFile }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

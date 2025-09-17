@@ -6,3 +6,5 @@ minikube-linux-amd64
 *.zip
 *.tar
 *.tar.gz
+.idea/
+

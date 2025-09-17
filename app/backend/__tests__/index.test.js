@@ -1,55 +1,83 @@
-const request = require('supertest');
 const express = require('express');
 
-// ћокируем зависимости перед импортом
+// ?????? express ?? ??????? ???????
 jest.mock('express', () => {
-  const expressApp = {
-    use: jest.fn(),
-    listen: jest.fn()
-  };
-  const express = jest.fn(() => expressApp);
-  express.json = jest.fn(() => 'json-middleware');
-  return express;
+    const expressApp = {
+        use: jest.fn(),
+        get: jest.fn(),
+        listen: jest.fn()
+    };
+    const mockExpress = jest.fn(() => expressApp);
+    mockExpress.json = jest.fn(() => 'json-middleware');
+    return mockExpress;
 });
 
+// ?????? ???????????
 jest.mock('cors', () => jest.fn(() => 'cors-middleware'));
-jest.mock('dotenv', () => ({
-  config: jest.fn()
-}));
+jest.mock('dotenv', () => ({ config: jest.fn() }));
+jest.mock('../routes/books', () => 'book-routes');
+jest.mock('../db', () => ({}));
+// prom-client: ????? ??????????? Registry ? Histogram + collectDefaultMetrics
+jest.mock('prom-client', () => {
+    // "???????" ???????, ??????? ?????? new Registry()
+    const fakeRegister = {
+        contentType: 'text/plain; version=0.0.4',
+        metrics: jest.fn(async () => 'metrics'),
+    };
 
-jest.mock('./routes/books', () => 'book-routes');
-jest.mock('./db', () => ({}));
+    // Histogram.startTimer() ?????? ??????? ???????-???????
+    const FakeHistogram = jest.fn().mockImplementation(() => ({
+        startTimer: jest.fn(() => jest.fn(() => {})),
+        observe: jest.fn(),
+    }));
 
-// ѕосле мокировани€ зависимостей импортируем server
-const server = require('../index');
+    return {
+        Registry: jest.fn().mockImplementation(() => fakeRegister),
+        collectDefaultMetrics: jest.fn(),
+        Histogram: FakeHistogram,
+        // ?????? ??? ??????????? register ???????? ? ??????? ?? ?????? ??????
+        register: fakeRegister,
+    };
+});
+
+
+// ??????????? ?????? ????? ?????
+require('../index');
 
 describe('Server Setup', () => {
-  it('должен вызывать dotenv.config()', () => {
-    expect(require('dotenv').config).toHaveBeenCalled();
-  });
+    it('?????? ???????? dotenv.config()', () => {
+        expect(require('dotenv').config).toHaveBeenCalled();
+    });
 
-  it('должен создавать express-приложение', () => {
-    expect(express).toHaveBeenCalled();
-  });
+    it('?????? ????????? express-??????????', () => {
+        expect(express).toHaveBeenCalled();
+    });
 
-  it('должен использовать cors middleware', () => {
-    const app = express();
-    expect(app.use).toHaveBeenCalledWith('cors-middleware');
-  });
+    it('?????? ???????????? cors middleware', () => {
+        const app = express();
+        expect(app.use).toHaveBeenCalledWith('cors-middleware');
+    });
 
-  it('должен использовать express.json middleware', () => {
-    const app = express();
-    expect(app.use).toHaveBeenCalledWith('json-middleware');
-  });
+    it('?????? ???????????? express.json middleware', () => {
+        const app = express();
+        expect(app.use).toHaveBeenCalledWith('json-middleware');
+    });
 
-  it('должен регистрировать маршруты дл€ книг', () => {
-    const app = express();
-    expect(app.use).toHaveBeenCalledWith('/api/books', 'book-routes');
-  });
+    it('?????? ?????????????? ???????? ??? ????', () => {
+        const app = express();
+        expect(app.use).toHaveBeenCalledWith('/api/books', 'book-routes');
+    });
 
-  it('должен запускать сервер на указанном порту', () => {
-    const app = express();
-    process.env.PORT = '8080';
-    expect(app.listen).toHaveBeenCalledWith(expect.any(String), expect.any(Function));
-  });
+    it('?????? ?????????????? endpoint /metrics', () => {
+        const app = express();
+        expect(app.get).toHaveBeenCalledWith(
+            '/metrics',
+            expect.any(Function)
+        );
+    });
+
+    it('?????? ????????? ?????? ?? ????????? ?????', () => {
+        const app = express();
+        expect(app.listen).toHaveBeenCalledWith(expect.anything(), expect.any(Function));
+    });
 });
