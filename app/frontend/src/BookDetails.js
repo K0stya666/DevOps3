@@ -21,11 +21,22 @@ const DeleteBookModal = ({ book, isOpen, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal">
+    <div className="modal-backdrop" role="presentation">
+      <div
+          className="modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-modal-title"
+      >
         <div className="modal-header">
-          <h3 className="modal-title">Delete Book</h3>
-          <button className="modal-close" onClick={onClose}>&times;</button>
+          <h3 className="modal-title" id="delete-modal-title">Delete Book</h3>
+          <button
+              className="modal-close"
+              aria-label="Close"
+              onClick={onClose}
+          >
+              &times;
+          </button>
         </div>
         
         <div className="modal-body">

@@ -6,7 +6,14 @@ import SearchBooks from '../SearchBooks';
 import BookService from '../BookService';
 import { toast } from 'react-toastify';
 
-// Мокаем зависимости
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
+
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 jest.mock('../BookService');
 jest.mock('react-toastify', () => ({
   toast: {
@@ -16,7 +23,7 @@ jest.mock('react-toastify', () => ({
   ToastContainer: () => <div data-testid="toast-container" />,
 }));
 
-// Мокаем модалку удаления
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 jest.mock('../DeleteBookModal', () => {
   // eslint-disable-next-line react/display-name
   return ({ book, isOpen, onClose, onSuccess }) => {

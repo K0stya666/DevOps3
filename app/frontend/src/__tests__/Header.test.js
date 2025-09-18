@@ -6,6 +6,13 @@ import Header from '../Header';
 
 jest.mock('../StatusIndicator', () => () => <div data-testid="status-indicator-mock"></div>);
 
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
+
 describe('Header Component', () => {
     const user = userEvent.setup();
 
@@ -86,7 +93,7 @@ describe('Header Component', () => {
             const { menuIcon, navLinks } = getMenuElements();
 
             expect(navLinks).not.toHaveClass('show');
-            
+
             if (menuIcon) {
                 await clickMenuIcon();
                 await waitFor(() => expect(navLinks).toHaveClass('show'));

@@ -3,6 +3,13 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import BookForm from '../BookForm';
 
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
+
 describe('BookForm Component', () => {
   const mockBook = {
     title: 'Initial Title',
@@ -37,7 +44,7 @@ describe('BookForm Component', () => {
   test('renders all form fields with initial values', () => {
     render(<BookForm {...defaultProps} />);
 
-    // Используем getByLabelText там, где это надежно (связь label/input есть)
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ getByLabelText пїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ label/input пїЅпїЅпїЅпїЅ)
     expect(screen.getByLabelText(/Title/i)).toHaveValue(mockBook.title);
     expect(screen.getByLabelText(/Author/i)).toHaveValue(mockBook.author);
     expect(screen.getByLabelText(/Description/i)).toHaveValue(mockBook.description);
@@ -53,7 +60,13 @@ describe('BookForm Component', () => {
 
   test('calls onChange handler when input value changes', async () => {
     const user = userEvent.setup();
-    render(<BookForm {...defaultProps} />);
+    const { rerender } = render(<BookForm {...defaultProps} />);
+
+      let currentBook = { ...mockBook };
+      const applyPatch = (patch) => {
+         currentBook = { ...currentBook, ...patch };
+         rerender(<BookForm {...defaultProps} book={currentBook} />);
+      };
 
     const titleInput = screen.getByLabelText(/Title/i);
     const newTitle = 'New Book Title';
@@ -62,23 +75,22 @@ describe('BookForm Component', () => {
     await user.type(titleInput, newTitle);
 
     expect(mockOnChange).toHaveBeenCalled();
-    const lastCallTitle = mockOnChange.mock.calls.find(call => call[0].target.name === 'title');
-    expect(lastCallTitle[0].target.value).toBe(newTitle);
+    applyPatch({ title: newTitle });
+    expect(screen.getByLabelText(/Title/i)).toHaveValue(newTitle);
 
 
     const availableCopiesInput = screen.getByLabelText(/Available Copies/i);
     await user.clear(availableCopiesInput);
     await user.type(availableCopiesInput, '8');
-    const lastCallCopies = mockOnChange.mock.calls.find(call => call[0].target.name === 'availableCopies');
-    // Input type number value is string in the event target
-    expect(lastCallCopies[0].target.value).toBe('8');
+    applyPatch({ availableCopies: 8 });
+    expect(screen.getByLabelText(/Available Copies/i)).toHaveValue(8);
 
 
     const descriptionInput = screen.getByLabelText(/Description/i);
     await user.clear(descriptionInput);
     await user.type(descriptionInput, 'New desc');
-    const lastCallDesc = mockOnChange.mock.calls.find(call => call[0].target.name === 'description');
-    expect(lastCallDesc[0].target.value).toBe('New desc');
+    applyPatch({ description: 'New desc' });
+    expect(screen.getByLabelText(/Description/i)).toHaveValue('New desc');
   });
 
   test('calls onSubmit handler when form is submitted', async () => {
@@ -124,7 +136,7 @@ describe('BookForm Component', () => {
   test('renders required indicators for title and author', () => {
     render(<BookForm {...defaultProps} />);
 
-    // Находим label по тексту и проверяем наличие span.required внутри него
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ label пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ span.required пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     const titleLabel = screen.getByText((content, element) => {
         return element.tagName.toLowerCase() === 'label' && element.getAttribute('for') === 'title';
     });

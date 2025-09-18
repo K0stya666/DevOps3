@@ -5,8 +5,17 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import BookDetails from '../BookDetails';
 import BookService from '../BookService';
 import { toast } from 'react-toastify';
+import { within } from '@testing-library/react';
 
-// Мокаем зависимости
+
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
+
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 jest.mock('../BookService');
 jest.mock('react-toastify', () => ({
   toast: {
@@ -17,7 +26,7 @@ jest.mock('react-toastify', () => ({
 }));
 
 const mockNavigate = jest.fn();
-// Мокаем хуки react-router-dom
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ react-router-dom
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ id: '1' }),
@@ -60,7 +69,7 @@ describe('BookDetails Component', () => {
     const deleteButtonPage = screen.getByRole('button', { name: /Delete/i });
     await user.click(deleteButtonPage);
     const modal = await screen.findByRole('dialog');
-    expect(screen.getByRole('heading', { name: /Delete Book/i, container: modal })).toBeInTheDocument();
+    expect(within(modal).getByRole('heading', { name: /Delete Book/i })).toBeInTheDocument();
     return modal;
   };
 
@@ -98,10 +107,10 @@ describe('BookDetails Component', () => {
   test('opens delete confirmation modal when Delete button is clicked', async () => {
     renderComponent();
     const modal = await openDeleteModal();
-    expect(screen.getByText(`Are you sure you want to delete the book "`)).toBeInTheDocument();
-    expect(screen.getByText(mockBook.title, { exact: false })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cancel', container: modal })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Delete/i, container: modal })).toBeInTheDocument();
+    expect(within(modal).getByText(/Are you sure you want to delete the book/i)).toBeInTheDocument();
+    expect(within(modal).getByText(mockBook.title)).toBeInTheDocument();
+    expect(within(modal).getByRole('button', { name: /^Cancel$/i })).toBeInTheDocument();
+    expect(within(modal).getByRole('button', { name: /^Delete$/i })).toBeInTheDocument();
   });
 
   test('closes delete modal when Cancel button in modal is clicked', async () => {
@@ -117,7 +126,7 @@ describe('BookDetails Component', () => {
   test('calls deleteBook service and navigates on confirm delete in modal', async () => {
     renderComponent();
     const modal = await openDeleteModal();
-    const modalDeleteButton = screen.getByRole('button', { name: /Delete/i, container: modal });
+    const modalDeleteButton = within(modal).getByRole('button', { name: /^Delete$/i });
     await user.click(modalDeleteButton);
 
     await waitFor(() => expect(BookService.deleteBook).toHaveBeenCalledWith(mockBook.id));
@@ -131,7 +140,7 @@ describe('BookDetails Component', () => {
     BookService.deleteBook.mockRejectedValue(deleteError);
     renderComponent();
     const modal = await openDeleteModal();
-    const modalDeleteButton = screen.getByRole('button', { name: /Delete/i, container: modal });
+    const modalDeleteButton = within(modal).getByRole('button', { name: /^Delete$/i });
     await user.click(modalDeleteButton);
 
     await waitFor(() => expect(BookService.deleteBook).toHaveBeenCalledWith(mockBook.id));
@@ -146,7 +155,7 @@ describe('BookDetails Component', () => {
     BookService.deleteBook.mockRejectedValue(genericError);
     renderComponent();
     const modal = await openDeleteModal();
-    const modalDeleteButton = screen.getByRole('button', { name: /Delete/i, container: modal });
+    const modalDeleteButton = within(modal).getByRole('button', { name: /^Delete$/i });
     await user.click(modalDeleteButton);
 
     await waitFor(() => expect(BookService.deleteBook).toHaveBeenCalledWith(mockBook.id));

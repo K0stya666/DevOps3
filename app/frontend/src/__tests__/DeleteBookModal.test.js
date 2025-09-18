@@ -1,11 +1,18 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import DeleteBookModal from '../DeleteBookModal'; // Убедитесь, что путь правильный
+import DeleteBookModal from '../DeleteBookModal'; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 import BookService from '../BookService';
 import { toast } from 'react-toastify';
 
-// Мокаем зависимости
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
+
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 jest.mock('../BookService');
 jest.mock('react-toastify', () => ({
   toast: {
@@ -27,7 +34,7 @@ describe('DeleteBookModal Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    BookService.deleteBook.mockResolvedValue({}); // Мок успешного удаления
+    BookService.deleteBook.mockResolvedValue({}); // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
   });
 
   test('renders nothing if isOpen is false', () => {
@@ -66,7 +73,7 @@ describe('DeleteBookModal Component', () => {
 
     expect(screen.getByRole('heading', { name: /Delete Book/i })).toBeInTheDocument();
     expect(screen.getByText(/Are you sure you want to delete the book/i)).toBeInTheDocument();
-    expect(screen.getByText(mockBook.title)).toBeInTheDocument(); // Проверяем наличие названия книги
+    expect(screen.getByText(mockBook.title)).toBeInTheDocument(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     expect(screen.getByText(/This action cannot be undone./i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Delete/i })).toBeInTheDocument();
@@ -99,7 +106,7 @@ describe('DeleteBookModal Component', () => {
         onSuccess={mockOnSuccess}
       />
     );
-    // Кликаем на элемент с классом modal-backdrop (родительский)
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ modal-backdrop (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
     // eslint-disable-next-line testing-library/no-node-access
     await user.click(screen.getByRole('heading', { name: /Delete Book/i }).closest('.modal-backdrop'));
     expect(mockOnClose).toHaveBeenCalledTimes(1);
@@ -115,7 +122,7 @@ describe('DeleteBookModal Component', () => {
         onSuccess={mockOnSuccess}
       />
     );
-     // Кликаем на заголовок внутри модалки
+     // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
      await user.click(screen.getByRole('heading', { name: /Delete Book/i }));
      expect(mockOnClose).not.toHaveBeenCalled();
    });
@@ -134,13 +141,13 @@ describe('DeleteBookModal Component', () => {
 
     await user.click(screen.getByRole('button', { name: /Delete/i }));
 
-    // Проверяем вызов сервиса
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     await waitFor(() => {
       expect(BookService.deleteBook).toHaveBeenCalledTimes(1);
       expect(BookService.deleteBook).toHaveBeenCalledWith(mockBook.id);
     });
 
-    // Проверяем вызовы колбэков и тоста
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
     await waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith('Book deleted successfully');
     });
@@ -156,7 +163,7 @@ describe('DeleteBookModal Component', () => {
   test('shows error toast and does not call onSuccess/onClose if deleteBook fails', async () => {
      const user = userEvent.setup();
     const apiError = { response: { data: { message: 'Deletion Failed' } } };
-    BookService.deleteBook.mockRejectedValue(apiError); // Мок ошибки
+    BookService.deleteBook.mockRejectedValue(apiError); // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
      render(
       <DeleteBookModal
@@ -177,15 +184,15 @@ describe('DeleteBookModal Component', () => {
        expect(toast.error).toHaveBeenCalledWith('Deletion Failed');
      });
 
-     // Успешные колбэки не должны вызываться
+     // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
      expect(mockOnSuccess).not.toHaveBeenCalled();
-     expect(mockOnClose).not.toHaveBeenCalled(); // onClose не вызывается в блоке catch
+     expect(mockOnClose).not.toHaveBeenCalled(); // onClose пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ catch
      expect(toast.success).not.toHaveBeenCalled();
   });
 
    test('shows generic error toast if deleteBook fails without specific message', async () => {
      const user = userEvent.setup();
-    const genericError = new Error('Network Error'); // Ошибка без response.data.message
+    const genericError = new Error('Network Error'); // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ response.data.message
     BookService.deleteBook.mockRejectedValue(genericError);
 
      render(

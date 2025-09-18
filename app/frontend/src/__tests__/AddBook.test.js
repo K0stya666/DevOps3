@@ -6,7 +6,7 @@ import AddBook from '../AddBook';
 import BookService from '../BookService';
 import { toast } from 'react-toastify';
 
-// Мокаем зависимости
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 jest.mock('../BookService');
 jest.mock('react-toastify', () => ({
   toast: {
@@ -16,12 +16,18 @@ jest.mock('react-toastify', () => ({
   ToastContainer: () => <div data-testid="toast-container" />,
 }));
 
-// Мокаем useNavigate
+// пїЅпїЅпїЅпїЅпїЅпїЅ useNavigate
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
 
 
 describe('AddBook Component', () => {
@@ -171,7 +177,7 @@ describe('AddBook Component', () => {
         <AddBook />
       </MemoryRouter>
     );
-    await fillValidForm(); // Заполняем форму валидными данными
+    await fillValidForm(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     const submitButton = screen.getByRole('button', { name: /Add Book/i });
 
     await user.click(submitButton);
@@ -204,7 +210,7 @@ describe('AddBook Component', () => {
         <AddBook />
       </MemoryRouter>
     );
-    await fillValidForm(); // Заполняем форму валидными данными
+    await fillValidForm(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     await user.click(screen.getByRole('button', { name: /Add Book/i }));
 
     await waitFor(() => {
@@ -212,7 +218,7 @@ describe('AddBook Component', () => {
     });
 
     await waitFor(() => {
-      // Должен показать ошибку из API
+      // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ API
       expect(toast.error).toHaveBeenCalledWith('Unique ISBN constraint violated');
     });
 
@@ -221,7 +227,7 @@ describe('AddBook Component', () => {
   });
 
   test('shows generic error toast if createBook fails without specific message', async () => {
-    const genericError = new Error('Network Error'); // Ошибка без response.data.message
+    const genericError = new Error('Network Error'); // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ response.data.message
     BookService.createBook.mockRejectedValue(genericError);
 
     render(
@@ -229,7 +235,7 @@ describe('AddBook Component', () => {
         <AddBook />
       </MemoryRouter>
     );
-    await fillValidForm(); // Заполняем форму валидными данными
+    await fillValidForm(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     await user.click(screen.getByRole('button', { name: /Add Book/i }));
 
     await waitFor(() => {
@@ -237,7 +243,7 @@ describe('AddBook Component', () => {
     });
 
     await waitFor(() => {
-       // Должен показать ошибку по умолчанию
+       // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
       expect(toast.error).toHaveBeenCalledWith('Failed to add book');
     });
 

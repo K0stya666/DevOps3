@@ -6,7 +6,14 @@ import EditBook from '../EditBook';
 import BookService from '../BookService';
 import { toast } from 'react-toastify';
 
-// Мокаем зависимости
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
+
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 jest.mock('../BookService');
 jest.mock('react-toastify', () => ({
   toast: {
@@ -18,7 +25,7 @@ jest.mock('react-toastify', () => ({
 
 const mockNavigate = jest.fn();
 const mockBookId = '5';
-// Мокаем хуки react-router-dom
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ react-router-dom
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ id: mockBookId }),
@@ -62,7 +69,7 @@ describe('EditBook Component', () => {
   test('fetches book data and populates form on mount', async () => {
     renderComponent();
     expect(screen.getByText(/Loading book data.../i)).toBeInTheDocument();
-    
+
     expect(await screen.findByLabelText(/Title/i)).toHaveValue(mockExistingBook.title);
     expect(screen.getByLabelText(/Author/i)).toHaveValue(mockExistingBook.author);
     expect(screen.getByLabelText(/Description/i)).toHaveValue(mockExistingBook.description);
@@ -71,7 +78,7 @@ describe('EditBook Component', () => {
     expect(screen.getByLabelText(/Genre/i)).toHaveValue(mockExistingBook.genre);
     expect(screen.getByLabelText(/Available Copies/i)).toHaveValue(mockExistingBook.availableCopies);
     expect(screen.getByLabelText(/Total Copies/i)).toHaveValue(mockExistingBook.totalCopies);
-    
+
     expect(screen.getByRole('button', { name: /Save Changes/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
     expect(BookService.getBookById).toHaveBeenCalledWith(mockBookId);
@@ -187,18 +194,18 @@ describe('EditBook Component', () => {
     await screen.findByLabelText(/Total Copies/i);
     const totalCopiesInput = screen.getByLabelText(/Total Copies/i);
 
-    // Случай 0
+    // пїЅпїЅпїЅпїЅпїЅпїЅ 0
     await user.clear(totalCopiesInput);
     await user.type(totalCopiesInput, '0');
     await user.click(screen.getByRole('button', { name: /Save Changes/i }));
     expect(toast.error).toHaveBeenCalledWith('Total copies must be a number greater than 0.');
 
-    // Случай не-число
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅ
     fireEvent.change(totalCopiesInput, { target: { value: 'abc' } });
     await user.click(screen.getByRole('button', { name: /Save Changes/i }));
     expect(toast.error).toHaveBeenCalledWith('Total copies must be a number greater than 0.');
 
-    // Случай отрицательное число
+    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     await user.clear(totalCopiesInput);
     await user.type(totalCopiesInput, '-5');
     await user.click(screen.getByRole('button', { name: /Save Changes/i }));

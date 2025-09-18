@@ -1,14 +1,21 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react'; // Исправлено
-import Footer from '../Footer'; // Убедитесь, что путь правильный
+import { render, screen } from '@testing-library/react'; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+import Footer from '../Footer'; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
 
 describe('Footer Component', () => {
   it('should render the copyright notice with the current year', () => {
     render(<Footer />);
     const currentYear = new Date().getFullYear();
-    // Используем поиск по части строки, так как текст включает знак ©
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ
     expect(screen.getByText(/Library Management System/i)).toBeInTheDocument();
-    expect(screen.getByText(new RegExp(currentYear.toString()))).toBeInTheDocument(); // Проверяем наличие года
+    expect(screen.getByText(new RegExp(currentYear.toString()))).toBeInTheDocument(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     expect(screen.getByText(/Made by Dzhevelik Anastasiia and Adriyanova Victoria/i)).toBeInTheDocument();
   });
 

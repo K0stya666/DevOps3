@@ -3,6 +3,13 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Error from '../Error';
 
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
+
 describe('Error Component', () => {
   test('renders the error message provided', () => {
     const errorMessage = 'Something went terribly wrong!';

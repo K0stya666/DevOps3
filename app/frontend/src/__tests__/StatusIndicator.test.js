@@ -4,6 +4,13 @@ import StatusIndicator from '../StatusIndicator';
 
 jest.useFakeTimers();
 
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
+
 describe('StatusIndicator Component', () => {
   let navigatorSpy;
 
@@ -67,7 +74,7 @@ describe('StatusIndicator Component', () => {
 
     const alert = screen.getByRole('alert');
     expect(alert).toBeInTheDocument();
-    expect(alert).toHaveTextContent(/Нет соединения/i);
+    expect(alert).toHaveTextContent(/пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/i);
     expect(alert).toHaveClass('offline');
     expect(alert).not.toHaveClass('online');
   });
@@ -82,7 +89,7 @@ describe('StatusIndicator Component', () => {
         if (eventListeners.offline) eventListeners.offline();
         else throw new Error("Offline listener missing");
     });
-    expect(screen.getByRole('alert')).toHaveTextContent(/Нет соединения/i);
+    expect(screen.getByRole('alert')).toHaveTextContent(/пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/i);
 
     act(() => {
         setNavigatorOnline(true);
@@ -91,7 +98,7 @@ describe('StatusIndicator Component', () => {
     });
 
     const alert = screen.getByRole('alert');
-    expect(alert).toHaveTextContent(/Соединение восстановлено/i);
+    expect(alert).toHaveTextContent(/пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ/i);
     expect(alert).toHaveClass('online');
     expect(alert).not.toHaveClass('offline');
 

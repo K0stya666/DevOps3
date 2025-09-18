@@ -2,9 +2,9 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import NotFound from '../NotFound';
-import App from '../App'; // Импортируем App для тестирования роутинга
+import App from '../App'; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ App пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-// Мокаем компоненты, чтобы не рендерить их полностью
+// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 jest.mock('../Header', () => () => <div data-testid="header">Header Mock</div>);
 jest.mock('../Footer', () => () => <div data-testid="footer">Footer Mock</div>);
 jest.mock('../BookList', () => () => <div data-testid="book-list">BookList Mock</div>);
@@ -32,11 +32,11 @@ describe('NotFound Component', () => {
         <App />
       </MemoryRouter>
     );
-    // Проверяем, что контент NotFound отображается внутри App
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ NotFound пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ App
     expect(screen.getByText('404')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Page Not Found/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Go to Homepage/i })).toBeInTheDocument();
-    // Убедимся, что другие компоненты (например, BookList) не рендерятся
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, BookList) пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     expect(screen.queryByTestId('book-list')).not.toBeInTheDocument();
   });
 });

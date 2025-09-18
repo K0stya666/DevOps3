@@ -1,10 +1,17 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import BookCard from '../BookCard'; // Убедись, что путь правильный
+import BookCard from '../BookCard'; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
 
 describe('BookCard Component', () => {
-  // Моковые данные для книги с длинным описанием
+  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
   const mockBookLongDesc = {
     id: '1',
     title: 'Long Description Book',
@@ -15,7 +22,7 @@ describe('BookCard Component', () => {
     totalCopies: 10,
   };
 
-  // Моковые данные для книги с коротким описанием
+  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
   const mockBookShortDesc = {
     id: '2',
     title: 'Short Description Book',
@@ -26,29 +33,29 @@ describe('BookCard Component', () => {
     totalCopies: 5,
   };
 
-  // Моковые данные для книги без описания
+  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
   const mockBookNoDesc = {
     id: '3',
     title: 'No Description Book',
     author: 'Author Three',
-    description: '', // Пустое описание
+    description: '', // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     genre: 'Mystery',
     availableCopies: 1,
     totalCopies: 1,
   };
 
-   // Моковые данные для книги с null описанием
+   // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ null пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
    const mockBookNullDesc = {
     id: '4',
     title: 'Null Description Book',
     author: 'Author Four',
-    description: null, // null описание
+    description: null, // null пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     genre: 'Sci-Fi',
     availableCopies: 0,
     totalCopies: 2,
   };
 
-  // Моковые данные без жанра и копий
+  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
   const mockBookMinimal = {
     id: '5',
     title: 'Minimal Book',
@@ -62,9 +69,9 @@ describe('BookCard Component', () => {
 
   const mockOnDelete = jest.fn();
 
-  // Функция-хелпер для рендера с роутером
+  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
   const renderWithRouter = (book) => {
-    // Используем container для querySelector
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ container пїЅпїЅпїЅ querySelector
     const utils = render(
       <MemoryRouter>
         <BookCard book={book} onDelete={mockOnDelete} />
@@ -74,12 +81,12 @@ describe('BookCard Component', () => {
   };
 
 
-  // Сброс моков перед каждым тестом
+  // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
   beforeEach(() => {
     mockOnDelete.mockClear();
   });
 
-  // --- Тесты рендеринга базовой информации ---
+  // --- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ---
 
   it('should render book title', () => {
     renderWithRouter(mockBookLongDesc);
@@ -93,14 +100,14 @@ describe('BookCard Component', () => {
 
   it('should render first letter of title in cover icon', () => {
     renderWithRouter(mockBookLongDesc);
-    // Ищем иконку по классу и проверяем текст внутри
+    // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     const coverIcon = screen.getByText(mockBookLongDesc.title.charAt(0));
     expect(coverIcon).toBeInTheDocument();
     expect(coverIcon).toHaveClass('book-cover-icon');
    });
 
 
-  // --- Тесты рендеринга описания ---
+  // --- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ---
 
   it('should render truncated description if description is long', () => {
     const { container } = renderWithRouter(mockBookLongDesc);
@@ -116,9 +123,9 @@ describe('BookCard Component', () => {
     // eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
     const descriptionElement = container.querySelector('p.book-description');
     expect(descriptionElement).toBeInTheDocument();
-    // Проверяем точное совпадение текста
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
     expect(descriptionElement).toHaveTextContent(mockBookShortDesc.description);
-    // Дополнительно убедимся, что нет многоточия в конце
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
     expect(descriptionElement.textContent).not.toMatch(/\.\.\.$/);
   });
 
@@ -139,7 +146,7 @@ describe('BookCard Component', () => {
   });
 
 
-  // --- Тесты рендеринга мета-информации (жанр, копии) ---
+  // --- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ) ---
 
   it('should render genre when available', () => {
     renderWithRouter(mockBookLongDesc);
@@ -168,7 +175,7 @@ describe('BookCard Component', () => {
   });
 
 
-  // --- Тесты ссылок и кнопок ---
+  // --- пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ---
 
   it('should render View link pointing to correct URL', () => {
     renderWithRouter(mockBookLongDesc);
@@ -192,7 +199,7 @@ describe('BookCard Component', () => {
   it('should call onDelete with book id when Delete button is clicked', () => {
     renderWithRouter(mockBookLongDesc);
     const deleteButton = screen.getByRole('button', { name: /Delete/i });
-    fireEvent.click(deleteButton); // Используем fireEvent для простого клика
+    fireEvent.click(deleteButton); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ fireEvent пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     expect(mockOnDelete).toHaveBeenCalledTimes(1);
     expect(mockOnDelete).toHaveBeenCalledWith(mockBookLongDesc.id);
   });

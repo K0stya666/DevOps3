@@ -1,219 +1,215 @@
 import MockBookService from '../MockDataService';
 
-// Ìîêàåì localStorage
+// ÐœÐ¾Ðº localStorage
 const localStorageMock = (() => {
-  let store = {};
-  return {
-    getItem(key) {
-      return store[key] || null;
-    },
-    setItem(key, value) {
-      store[key] = value.toString();
-    },
-    removeItem(key) {
-      delete store[key];
-    },
-    clear() {
-      store = {};
-    },
-  };
+    let store = {};
+    return {
+        getItem(key) {
+            return store[key] || null;
+        },
+        setItem(key, value) {
+            store[key] = value.toString();
+        },
+        removeItem(key) {
+            delete store[key];
+        },
+        clear() {
+            store = {};
+        },
+    };
 })();
+
+beforeAll(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    console.error.mockRestore();
+});
 
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
-// Èñïîëüçóåì ôåéêîâûå òàéìåðû
+// Ð£Ð¿Ñ€Ð°Ð²Ð»ÑÐµÐ¼ Â«ÑÐµÑ‚ÐµÐ²Ð¾Ð¹Â» Ð·Ð°Ð´ÐµÑ€Ð¶ÐºÐ¾Ð¹
 jest.useFakeTimers();
 
 describe('MockBookService', () => {
-  const initialBooksCount = 6; // Èçíà÷àëüíîå êîëè÷åñòâî êíèã â ìîêîâûõ äàííûõ
+    const initialBooksCount = 6; // ÐºÐ¾Ð»-Ð²Ð¾ ÐºÐ½Ð¸Ð³ Ð² Ð¸ÑÑ…Ð¾Ð´Ð½Ð¾Ð¼ Ð½Ð°Ð±Ð¾Ñ€Ðµ
 
-  beforeEach(() => {
-    // Î÷èùàåì localStorage è ñáðàñûâàåì òàéìåðû ïåðåä êàæäûì òåñòîì
-    localStorage.clear();
-    // Èíèöèàëèçèðóåì localStorage ñ íà÷àëüíûìè äàííûìè (âûçîâ ëþáîé ôóíêöèè ñåðâèñà ñäåëàåò ýòî)
-    MockBookService.getAllBooks();
-    jest.advanceTimersByTime(500); // Ïðîïóñêàåì setTimeout â getAllBooks
-  });
-
-  test('getAllBooks should return initial mock books from localStorage', async () => {
-    const promise = MockBookService.getAllBooks();
-    jest.advanceTimersByTime(500); // Ïðîïóñêàåì setTimeout
-    const response = await promise;
-
-    expect(response.data).toBeInstanceOf(Array);
-    expect(response.data.length).toBe(initialBooksCount);
-    expect(response.data[0].title).toBe('Âîéíà è ìèð'); // Ïðîâåðÿåì ïåðâóþ êíèãó
-  });
-
-  test('getBookById should return the correct book', async () => {
-    const bookId = '2'; // Ìàñòåð è Ìàðãàðèòà
-    const promise = MockBookService.getBookById(bookId);
-    jest.advanceTimersByTime(500);
-    const response = await promise;
-
-    expect(response.data).toBeDefined();
-    expect(response.data.id).toBe(bookId);
-    expect(response.data.title).toBe('Ìàñòåð è Ìàðãàðèòà');
-  });
-
-  test('getBookById should reject if book not found', async () => {
-    const bookId = 'nonexistent-id';
-    const promise = MockBookService.getBookById(bookId);
-    jest.advanceTimersByTime(500);
-
-    await expect(promise).rejects.toEqual({
-      response: { data: { message: 'Book not found' } },
-    });
-  });
-
-  test('createBook should add a new book to localStorage and return it with an id', async () => {
-    const newBookData = {
-      title: 'New Mock Book',
-      author: 'Mock Author',
-      description: 'Desc',
-      publicationDate: '2024-01-01',
-      isbn: '999888777',
-      genre: 'Mock Genre',
-      availableCopies: 1,
-      totalCopies: 1,
-    };
-    const createPromise = MockBookService.createBook(newBookData);
-    jest.advanceTimersByTime(700); // Ïðîïóñêàåì setTimeout
-    const createResponse = await createPromise;
-
-    expect(createResponse.data).toBeDefined();
-    expect(createResponse.data.id).toBeDefined(); // ID äîëæåí áûòü ñãåíåðèðîâàí
-    expect(createResponse.data.title).toBe(newBookData.title);
-    expect(createResponse.data.createdAt).toBeDefined();
-
-    // Ïðîâåðÿåì, ÷òî êíèãà äîáàâëåíà â localStorage
-    const getAllPromise = MockBookService.getAllBooks();
-    jest.advanceTimersByTime(500);
-    const getAllResponse = await getAllPromise;
-    expect(getAllResponse.data.length).toBe(initialBooksCount + 1);
-    const addedBook = getAllResponse.data.find(b => b.id === createResponse.data.id);
-    expect(addedBook).toBeDefined();
-    expect(addedBook.title).toBe(newBookData.title);
-  });
-
-  test('updateBook should modify the correct book in localStorage', async () => {
-    const bookIdToUpdate = '3'; // Ïðåñòóïëåíèå è íàêàçàíèå
-    const updateData = {
-      title: 'Updated Title',
-      availableCopies: 0,
-    };
-
-    const updatePromise = MockBookService.updateBook(bookIdToUpdate, updateData);
-    jest.advanceTimersByTime(700);
-    const updateResponse = await updatePromise;
-
-    expect(updateResponse.data.id).toBe(bookIdToUpdate);
-    expect(updateResponse.data.title).toBe(updateData.title);
-    expect(updateResponse.data.availableCopies).toBe(updateData.availableCopies);
-    expect(updateResponse.data.author).toBe('Ô¸äîð Äîñòîåâñêèé'); // Îñòàëüíûå ïîëÿ íå äîëæíû èçìåíèòüñÿ
-    expect(updateResponse.data.updatedAt).toBeDefined();
-
-    // Ïðîâåðÿåì localStorage
-    const getPromise = MockBookService.getBookById(bookIdToUpdate);
-    jest.advanceTimersByTime(500);
-    const getResponse = await getPromise;
-    expect(getResponse.data.title).toBe(updateData.title);
-    expect(getResponse.data.availableCopies).toBe(updateData.availableCopies);
-  });
-
-   test('updateBook should reject if book not found', async () => {
-    const bookIdToUpdate = 'nonexistent-id';
-    const updateData = { title: 'Wont Update' };
-    const promise = MockBookService.updateBook(bookIdToUpdate, updateData);
-    jest.advanceTimersByTime(700);
-
-    await expect(promise).rejects.toEqual({
-      response: { data: { message: 'Book not found' } },
-    });
-  });
-
-  test('deleteBook should remove the book from localStorage', async () => {
-    const bookIdToDelete = '4'; // 1984
-
-    // Óáåäèìñÿ, ÷òî êíèãà åñòü
-    const getPromiseBefore = MockBookService.getBookById(bookIdToDelete);
-     jest.advanceTimersByTime(500);
-    await expect(getPromiseBefore).resolves.toBeDefined();
-
-    // Óäàëÿåì
-    const deletePromise = MockBookService.deleteBook(bookIdToDelete);
-    jest.advanceTimersByTime(700);
-    const deleteResponse = await deletePromise;
-    expect(deleteResponse.data.message).toBe('Book deleted successfully');
-
-    // Ïðîâåðÿåì, ÷òî êíèãè áîëüøå íåò
-    const getPromiseAfter = MockBookService.getBookById(bookIdToDelete);
-    jest.advanceTimersByTime(500);
-    await expect(getPromiseAfter).rejects.toEqual({
-      response: { data: { message: 'Book not found' } },
+    beforeEach(() => {
+        localStorage.clear();
+        // Ð˜Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ localStorage Ð½Ð°Ñ‡Ð°Ð»ÑŒÐ½Ñ‹Ð¼Ð¸ Ð´Ð°Ð½Ð½Ñ‹Ð¼Ð¸
+        MockBookService.getAllBooks();
+        jest.advanceTimersByTime(500);
     });
 
-    // Ïðîâåðÿåì îáùåå êîëè÷åñòâî
-     const getAllPromise = MockBookService.getAllBooks();
-     jest.advanceTimersByTime(500);
-     const getAllResponse = await getAllPromise;
-     expect(getAllResponse.data.length).toBe(initialBooksCount - 1);
-  });
+    test('getAllBooks should return initial mock books from localStorage', async () => {
+        const promise = MockBookService.getAllBooks();
+        jest.advanceTimersByTime(500);
+        const response = await promise;
 
-   test('deleteBook should reject if book not found', async () => {
-    const bookIdToDelete = 'nonexistent-id';
-    const promise = MockBookService.deleteBook(bookIdToDelete);
-    jest.advanceTimersByTime(700);
-
-    await expect(promise).rejects.toEqual({
-      response: { data: { message: 'Book not found' } },
+        expect(response.data).toBeInstanceOf(Array);
+        expect(response.data.length).toBe(initialBooksCount);
+        expect(response.data[0].title).toBe('Ð’Ð¾Ð¹Ð½Ð° Ð¸ Ð¼Ð¸Ñ€'); // Ð¿Ñ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ Ð¿ÐµÑ€Ð²ÑƒÑŽ ÐºÐ½Ð¸Ð³Ñƒ
     });
-  });
 
-  test('searchBooks should find books by title', async () => {
-    const promise = MockBookService.searchBooks('ìèð'); // Âîéíà è ìèð
-    jest.advanceTimersByTime(700);
-    const response = await promise;
+    test('getBookById should return the correct book', async () => {
+        const bookId = '2'; // ÐœÐ°ÑÑ‚ÐµÑ€ Ð¸ ÐœÐ°Ñ€Ð³Ð°Ñ€Ð¸Ñ‚Ð°
+        const promise = MockBookService.getBookById(bookId);
+        jest.advanceTimersByTime(500);
+        const response = await promise;
 
-    expect(response.data.length).toBe(1);
-    expect(response.data[0].title).toBe('Âîéíà è ìèð');
-  });
+        expect(response.data).toBeDefined();
+        expect(response.data.id).toBe(bookId);
+        expect(response.data.title).toBe('ÐœÐ°ÑÑ‚ÐµÑ€ Ð¸ ÐœÐ°Ñ€Ð³Ð°Ñ€Ð¸Ñ‚Ð°');
+    });
 
-   test('searchBooks should find books by author', async () => {
-    const promise = MockBookService.searchBooks('Òîëñòîé'); // Ëåâ Òîëñòîé
-    jest.advanceTimersByTime(700);
-    const response = await promise;
+    test('getBookById should reject if book not found', async () => {
+        const bookId = 'nonexistent-id';
+        const promise = MockBookService.getBookById(bookId);
+        jest.advanceTimersByTime(500);
 
-    expect(response.data.length).toBe(1);
-    expect(response.data[0].author).toBe('Ëåâ Òîëñòîé');
-  });
+        await expect(promise).rejects.toEqual({
+            response: { data: { message: 'Book not found' } },
+        });
+    });
 
-   test('searchBooks should find books by genre (case-insensitive)', async () => {
-    const promise = MockBookService.searchBooks('ôýíòåçè'); // Ãàððè Ïîòòåð, Âëàñòåëèí êîëåö
-    jest.advanceTimersByTime(700);
-    const response = await promise;
+    test('createBook should add a new book to localStorage and return it with an id', async () => {
+        const newBookData = {
+            title: 'New Mock Book',
+            author: 'Mock Author',
+            description: 'Desc',
+            publicationDate: '2024-01-01',
+            isbn: '999888777',
+            genre: 'Mock Genre',
+            availableCopies: 1,
+            totalCopies: 1,
+        };
+        const createPromise = MockBookService.createBook(newBookData);
+        jest.advanceTimersByTime(700);
+        const createResponse = await createPromise;
 
-    expect(response.data.length).toBe(2);
-    expect(response.data.map(b => b.title)).toEqual(
-        expect.arrayContaining(['Ãàððè Ïîòòåð è ôèëîñîôñêèé êàìåíü', 'Âëàñòåëèí êîëåö'])
-    );
-  });
+        expect(createResponse.data).toBeDefined();
+        expect(createResponse.data.id).toBeDefined();
+        expect(createResponse.data.title).toBe(newBookData.title);
+        expect(createResponse.data.createdAt).toBeDefined();
 
-   test('searchBooks should find books by isbn', async () => {
-    const promise = MockBookService.searchBooks('9785389074331'); // 1984
-    jest.advanceTimersByTime(700);
-    const response = await promise;
+        // ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼, Ñ‡Ñ‚Ð¾ Ð·Ð°Ð¿Ð¸ÑÑŒ Ð¿Ð¾Ð¿Ð°Ð»Ð° Ð² localStorage
+        const getAllPromise = MockBookService.getAllBooks();
+        jest.advanceTimersByTime(500);
+        const getAllResponse = await getAllPromise;
+        expect(getAllResponse.data.length).toBe(initialBooksCount + 1);
+        const addedBook = getAllResponse.data.find(b => b.id === createResponse.data.id);
+        expect(addedBook).toBeDefined();
+        expect(addedBook.title).toBe(newBookData.title);
+    });
 
-    expect(response.data.length).toBe(1);
-    expect(response.data[0].title).toBe('1984');
-  });
+    test('updateBook should modify the correct book in localStorage', async () => {
+        const bookIdToUpdate = '3'; // ÐŸÑ€ÐµÑÑ‚ÑƒÐ¿Ð»ÐµÐ½Ð¸Ðµ Ð¸ Ð½Ð°ÐºÐ°Ð·Ð°Ð½Ð¸Ðµ
+        const updateData = {
+            title: 'Updated Title',
+            availableCopies: 0,
+        };
 
-   test('searchBooks should return empty array if no match', async () => {
-    const promise = MockBookService.searchBooks('nonexistent query');
-    jest.advanceTimersByTime(700);
-    const response = await promise;
+        const updatePromise = MockBookService.updateBook(bookIdToUpdate, updateData);
+        jest.advanceTimersByTime(700);
+        const updateResponse = await updatePromise;
 
-    expect(response.data).toEqual([]);
-  });
+        expect(updateResponse.data.id).toBe(bookIdToUpdate);
+        expect(updateResponse.data.title).toBe(updateData.title);
+        expect(updateResponse.data.availableCopies).toBe(updateData.availableCopies);
+        // ÐÐ²Ñ‚Ð¾Ñ€ Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð¾ÑÑ‚Ð°Ñ‚ÑŒÑÑ Ð¸ÑÑ…Ð¾Ð´Ð½Ñ‹Ð¼
+        expect(updateResponse.data.author).toBe('Ð¤Ñ‘Ð´Ð¾Ñ€ Ð”Ð¾ÑÑ‚Ð¾ÐµÐ²ÑÐºÐ¸Ð¹');
+        expect(updateResponse.data.updatedAt).toBeDefined();
 
+        // ÐŸÑ€Ð¾Ð²ÐµÑ€Ð¸Ð¼, Ñ‡Ñ‚Ð¾ Ð² Ñ…Ñ€Ð°Ð½Ð¸Ð»Ð¸Ñ‰Ðµ Ð¾Ð±Ð½Ð¾Ð²Ð¸Ð»Ð¾ÑÑŒ
+        const getPromise = MockBookService.getBookById(bookIdToUpdate);
+        jest.advanceTimersByTime(500);
+        const getResponse = await getPromise;
+        expect(getResponse.data.title).toBe(updateData.title);
+        expect(getResponse.data.availableCopies).toBe(updateData.availableCopies);
+    });
+
+    test('updateBook should reject if book not found', async () => {
+        const bookIdToUpdate = 'nonexistent-id';
+        const updateData = { title: 'Wont Update' };
+        const promise = MockBookService.updateBook(bookIdToUpdate, updateData);
+        jest.advanceTimersByTime(700);
+
+        await expect(promise).rejects.toEqual({
+            response: { data: { message: 'Book not found' } },
+        });
+    });
+
+    test('deleteBook should remove the book from localStorage', async () => {
+        const bookIdToDelete = '4'; // 1984
+
+        // Ð£Ð±ÐµÐ´Ð¸Ð¼ÑÑ, Ñ‡Ñ‚Ð¾ ÐºÐ½Ð¸Ð³Ð° ÐµÑÑ‚ÑŒ
+        const getPromiseBefore = MockBookService.getBookById(bookIdToDelete);
+        jest.advanceTimersByTime(500);
+        await expect(getPromiseBefore).resolves.toBeDefined();
+
+        // Ð£Ð´Ð°Ð»ÑÐµÐ¼
+        const deletePromise = MockBookService.deleteBook(bookIdToDelete);
+        jest.advanceTimersByTime(700);
+        const deleteResponse = await deletePromise;
+        expect(deleteResponse.data.message).toBe('Book deleted successfully');
+
+        // Ð¢ÐµÐ¿ÐµÑ€ÑŒ ÐµÑ‘ Ð±Ñ‹Ñ‚ÑŒ Ð½Ðµ Ð´Ð¾Ð»Ð¶Ð½Ð¾
+        const getPromiseAfter = MockBookService.getBookById(bookIdToDelete);
+        jest.advanceTimersByTime(500);
+        await expect(getPromiseAfter).rejects.toEqual({
+            response: { data: { message: 'Book not found' } },
+        });
+
+        // Ð˜ Ð¾Ð±Ñ‰ÐµÐµ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑƒÐ¼ÐµÐ½ÑŒÑˆÐ¸Ð»Ð¾ÑÑŒ
+        const getAllPromise = MockBookService.getAllBooks();
+        jest.advanceTimersByTime(500);
+        const getAllResponse = await getAllPromise;
+        expect(getAllResponse.data.length).toBe(initialBooksCount - 1);
+    });
+
+    test('searchBooks should find books by title', async () => {
+        const promise = MockBookService.searchBooks('Ð’Ð¾Ð¹Ð½Ð°'); // Ð½Ð°Ð¹Ð´Ñ‘Ñ‚ Â«Ð’Ð¾Ð¹Ð½Ð° Ð¸ Ð¼Ð¸Ñ€Â»
+        jest.advanceTimersByTime(700);
+        const response = await promise;
+
+        expect(response.data.length).toBe(1);
+        expect(response.data[0].title).toBe('Ð’Ð¾Ð¹Ð½Ð° Ð¸ Ð¼Ð¸Ñ€');
+    });
+
+    test('searchBooks should find books by author', async () => {
+        const promise = MockBookService.searchBooks('Ð¢Ð¾Ð»ÑÑ‚Ð¾Ð¹'); // Ð½Ð°Ð¹Ð´Ñ‘Ñ‚ Ð°Ð²Ñ‚Ð¾Ñ€Ð° Â«Ð›ÐµÐ² Ð¢Ð¾Ð»ÑÑ‚Ð¾Ð¹Â»
+        jest.advanceTimersByTime(700);
+        const response = await promise;
+
+        expect(response.data.length).toBe(1);
+        expect(response.data[0].author).toBe('Ð›ÐµÐ² Ð¢Ð¾Ð»ÑÑ‚Ð¾Ð¹');
+    });
+
+    test('searchBooks should find books by genre (case-insensitive)', async () => {
+        const promise = MockBookService.searchBooks('Ñ„ÑÐ½Ñ‚ÐµÐ·Ð¸'); // Ð¶Ð°Ð½Ñ€ Ñƒ Ð´Ð²ÑƒÑ… ÐºÐ½Ð¸Ð³
+        jest.advanceTimersByTime(700);
+        const response = await promise;
+
+        expect(response.data.length).toBe(2);
+        expect(response.data.map(b => b.title)).toEqual(
+            expect.arrayContaining(['Ð“Ð°Ñ€Ñ€Ð¸ ÐŸÐ¾Ñ‚Ñ‚ÐµÑ€ Ð¸ Ñ„Ð¸Ð»Ð¾ÑÐ¾Ñ„ÑÐºÐ¸Ð¹ ÐºÐ°Ð¼ÐµÐ½ÑŒ', 'Ð’Ð»Ð°ÑÑ‚ÐµÐ»Ð¸Ð½ ÐºÐ¾Ð»ÐµÑ†'])
+        );
+    });
+
+    test('searchBooks should find books by isbn', async () => {
+        const promise = MockBookService.searchBooks('9785389074331'); // 1984
+        jest.advanceTimersByTime(700);
+        const response = await promise;
+
+        expect(response.data.length).toBe(1);
+        expect(response.data[0].title).toBe('1984');
+    });
+
+    test('searchBooks should return empty array if no match', async () => {
+        const promise = MockBookService.searchBooks('nonexistent query');
+        jest.advanceTimersByTime(700);
+        const response = await promise;
+
+        expect(response.data).toEqual([]);
+    });
 });
