@@ -33,7 +33,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # для корректного сравнения нового кода
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -55,6 +55,12 @@ jobs:
       - name: Run tests with coverage
         run: npm test -- --coverage
 
+      # ——— Жёсткая проверка покрытия ≥ 80% ———
+      - name: Enforce 80% coverage
+        id: coverage
+        run: |
+          node -e "const fs=require('fs');const p='coverage/coverage-summary.json';if(!fs.existsSync(p)){console.error('coverage-summary.json not found');process.exit(1)};const s=JSON.parse(fs.readFileSync(p,'utf8'));const pct=s.total?.lines?.pct ?? 0;console.log('Lines coverage:',pct);if(pct<80){console.error('Coverage below 80%');process.exit(2)}"
+
       - name: SonarQube Scan
         id: scan
         uses: SonarSource/sonarqube-scan-action@v3
@@ -63,8 +69,47 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
 
       - name: SonarQube Quality Gate
+        id: qg
         uses: SonarSource/sonarqube-quality-gate-action@v1
         with:
           scanMetadataReportFile: ${{ steps.scan.outputs.scanMetadataReportFile }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # На всякий случай: явно падаем, если Quality Gate не пройден
+      - name: Fail if Quality Gate not passed
+        if: always()
+        run: |
+          # action выше обычно сам фейлит job, но оставим явную проверку
+          echo "Quality Gate step conclusion: ${{ steps.qg.outcome }}"
+          if [ "${{ steps.qg.outcome }}" != "success" ]; then
+            echo "Quality Gate failed."
+            exit 1
+          fi
+
+      # ——— Telegram уведомление (всегда) ———
+      - name: Telegram notify (sonar)
+        if: always()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT:  ${{ secrets.TELEGRAM_CHAT_ID }}
+          STATUS:   ${{ job.status }}
+          RUN_URL:  https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # попытаемся прочитать проценты покрытия (если файл есть)
+          COV="n/a"
+          if [ -f coverage/coverage-summary.json ]; then
+            COV=$(node -e "const s=require('fs').readFileSync('coverage/coverage-summary.json','utf8');const j=JSON.parse(s);process.stdout.write(String(j.total?.lines?.pct ?? 'n/a'));")
+          fi
+          TEXT="$(cat <<EOF
+          *SonarCloud* — \`${{ matrix.component.name }}\`
+          *Status:* ${STATUS}
+          *Coverage (lines):* ${COV}%
+          *Repo:* ${{ github.repository }}
+          *Ref:*  ${{ github.ref_name }}
+          *Actor:* ${{ github.actor }}
+          [Open run](${RUN_URL})
+          EOF
+          )"
+          curl -sS -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            -d chat_id="${TG_CHAT}" -d parse_mode=Markdown -d text="$TEXT" >/dev/null
