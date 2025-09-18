@@ -76,13 +76,12 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # На всякий случай: явно падаем, если Quality Gate не пройден
+      # Явно падаем, если Quality Gate не пройден (по статусу из outputs)
       - name: Fail if Quality Gate not passed
         if: always()
         run: |
-          # action выше обычно сам фейлит job, но оставим явную проверку
-          echo "Quality Gate step conclusion: ${{ steps.qg.outcome }}"
-          if [ "${{ steps.qg.outcome }}" != "success" ]; then
+          echo "Quality Gate status: ${{ steps.qg.outputs.quality-gate-status }}"
+          if [ "${{ steps.qg.outputs.quality-gate-status }}" != "PASSED" ]; then
             echo "Quality Gate failed."
             exit 1
           fi
@@ -96,13 +95,13 @@ jobs:
           STATUS:   ${{ job.status }}
           RUN_URL:  https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          # попытаемся прочитать проценты покрытия (если файл есть)
+          set -e
           COV="n/a"
           if [ -f coverage/coverage-summary.json ]; then
             COV=$(node -e "const s=require('fs').readFileSync('coverage/coverage-summary.json','utf8');const j=JSON.parse(s);process.stdout.write(String(j.total?.lines?.pct ?? 'n/a'));")
           fi
           TEXT="$(cat <<EOF
-          *SonarCloud* — \`${{ matrix.component.name }}\`
+          🔎 *SonarCloud* — \`${{ matrix.component.name }}\`
           *Status:* ${STATUS}
           *Coverage (lines):* ${COV}%
           *Repo:* ${{ github.repository }}
