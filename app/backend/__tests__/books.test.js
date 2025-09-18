@@ -1,3 +1,12 @@
+let consoleErrSpy;
+beforeAll(() => {
+    consoleErrSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+afterAll(() => {
+    consoleErrSpy.mockRestore();
+});
+
+
 const request = require('supertest');
 const express = require('express');
 const cors = require('cors');
@@ -220,5 +229,46 @@ describe('Book API', () => {
             expect(response.status).toBe(500);
             expect(response.body).toEqual({ message: 'Server Error' });
         });
+    });
+});
+
+describe('GET /api/books/search', () => {
+    it('200: ?????????? ????????? ????? ?? ?????? query', async () => {
+        const { query } = require('../db');
+        const found = [
+            { id: 3, title: 'Node Patterns', author: 'Smith', isbn: '111', genre: 'IT' }
+        ];
+        query.mockResolvedValueOnce({ rows: found });
+
+        const request = require('supertest');
+        const express = require('express');
+        const router = require('../routes/books');
+        const app = express();
+        app.use(express.json());
+        app.use('/api/books', router);
+
+        const res = await request(app).get('/api/books/search').query({ query: 'node' });
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual(found);
+        expect(query).toHaveBeenCalledWith(
+            'SELECT * FROM books WHERE title ILIKE $1 OR author ILIKE $1 OR isbn ILIKE $1 OR genre ILIKE $1',
+            ['%node%']
+        );
+    });
+
+    it('500: ??? ?????? ??', async () => {
+        const { query } = require('../db');
+        query.mockRejectedValueOnce(new Error('db fail'));
+
+        const request = require('supertest');
+        const express = require('express');
+        const router = require('../routes/books');
+        const app = express();
+        app.use(express.json());
+        app.use('/api/books', router);
+
+        const res = await request(app).get('/api/books/search').query({ query: 'x' });
+        expect(res.status).toBe(500);
+        expect(res.body).toEqual({ message: 'Server Error' });
     });
 });

@@ -1,8 +1,24 @@
 const express = require('express');
 const pool = require('../db');
+
 const router = express.Router();
 
-// Ïîëó÷èòü âñå êíèãè
+// Ð’ÐÐ–ÐÐž: search Ð”Ðž :id
+router.get('/search', async (req, res) => {
+  const { query } = req.query;
+  try {
+    const { rows } = await pool.query(
+      'SELECT * FROM books WHERE title ILIKE $1 OR author ILIKE $1 OR isbn ILIKE $1 OR genre ILIKE $1',
+      [`%${query}%`]
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// Ð¡Ð¿Ð¸ÑÐ¾Ðº ÐºÐ½Ð¸Ð³
 router.get('/', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT * FROM books ORDER BY id DESC');
@@ -13,14 +29,11 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Ïîëó÷èòü êíèãó ïî ID
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
+// ÐšÐ½Ð¸Ð³Ð° Ð¿Ð¾ id
+router.get('/:id(\\d+)', async (req, res) => { // Ð¾Ð³Ñ€Ð°Ð½Ð¸Ñ‡Ð¸Ð¼ id Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ñ†Ð¸Ñ„Ñ€Ð°Ð¼Ð¸
   try {
-    const { rows } = await pool.query('SELECT * FROM books WHERE id = $1', [id]);
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
+    const { rows } = await pool.query('SELECT * FROM books WHERE id = $1', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ message: 'Book not found' });
     res.json(rows[0]);
   } catch (err) {
     console.error(err.message);
@@ -28,7 +41,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Ñîçäàòü íîâóþ êíèãó
+// Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ ÐºÐ½Ð¸Ð³Ñƒ
 router.post('/', async (req, res) => {
   const { title, author, description, publicationDate, isbn, genre, availableCopies, totalCopies } = req.body;
   try {
@@ -43,18 +56,15 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Îáíîâèòü êíèãó
-router.put('/:id', async (req, res) => {
-  const { id } = req.params;
+// ÐžÐ±Ð½Ð¾Ð²Ð¸Ñ‚ÑŒ ÐºÐ½Ð¸Ð³Ñƒ
+router.put('/:id(\\d+)', async (req, res) => {
   const { title, author, description, publicationDate, isbn, genre, availableCopies, totalCopies } = req.body;
   try {
     const { rows } = await pool.query(
       'UPDATE books SET title = $1, author = $2, description = $3, publication_date = $4, isbn = $5, genre = $6, available_copies = $7, total_copies = $8 WHERE id = $9 RETURNING *',
-      [title, author, description, publicationDate, isbn, genre, availableCopies, totalCopies, id]
+      [title, author, description, publicationDate, isbn, genre, availableCopies, totalCopies, req.params.id]
     );
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
+    if (!rows.length) return res.status(404).json({ message: 'Book not found' });
     res.json(rows[0]);
   } catch (err) {
     console.error(err.message);
@@ -62,30 +72,12 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Óäàëèòü êíèãó
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
+// Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ ÐºÐ½Ð¸Ð³Ñƒ
+router.delete('/:id(\\d+)', async (req, res) => {
   try {
-    const { rows } = await pool.query('DELETE FROM books WHERE id = $1 RETURNING *', [id]);
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
+    const { rows } = await pool.query('DELETE FROM books WHERE id = $1 RETURNING *', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ message: 'Book not found' });
     res.json({ message: 'Book deleted successfully' });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ message: 'Server Error' });
-  }
-});
-
-// Ïîèñê êíèã
-router.get('/search', async (req, res) => {
-  const { query } = req.query;
-  try {
-    const { rows } = await pool.query(
-      'SELECT * FROM books WHERE title ILIKE $1 OR author ILIKE $1 OR isbn ILIKE $1 OR genre ILIKE $1',
-      [`%${query}%`]
-    );
-    res.json(rows);
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ message: 'Server Error' });
