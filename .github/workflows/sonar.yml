@@ -55,7 +55,14 @@ jobs:
       - name: Run tests with coverage
         run: npm test -- --coverage
 
-      # — Проверка покрытия ≥80% — только backend; поддержка summary или lcov —
+      - name: Show coverage folder (debug)
+        if: ${{ matrix.component.name == 'backend' }}
+        run: |
+          echo "PWD=$(pwd)"
+          ls -la || true
+          ls -la coverage || true
+
+      # — Проверка покрытия ≥80% — только backend; поддержка summary ИЛИ lcov —
       - name: Enforce 80% coverage (backend only)
         if: ${{ matrix.component.name == 'backend' }}
         run: |
@@ -92,7 +99,7 @@ jobs:
         id: scan
         uses: SonarSource/sonarqube-scan-action@v3
         with:
-          projectBaseDir: ${{ matrix.component.workdir }}   # важно: сканировать из каталога компонента
+          projectBaseDir: ${{ matrix.component.workdir }}   # важно: сканировать из папки компонента
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -114,7 +121,6 @@ jobs:
             exit 1
           fi
 
-      # — Telegram уведомление (всегда); считаем покрытие из summary или lcov —
       - name: Telegram notify (sonar)
         if: always()
         env:
