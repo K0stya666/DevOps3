@@ -90,23 +90,40 @@ jobs:
             }
           "
 
+      # —— S O N A R — с расширенным логированием ——
       - name: SonarQube Scan
         id: scan
         uses: SonarSource/sonarqube-scan-action@v3
         with:
           projectBaseDir: ${{ matrix.component.workdir }}
+          # подробные логи и дамп применённых свойств
+          args: >
+            -Dsonar.verbose=true
+            -Dsonar.scanner.dumpToFile=sonar-dump.properties
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
+          # Доп. debug для CLI (аналог -X)
+          SONAR_SCANNER_OPTS: "-X"
 
-      - name: SonarCloud Quality Gate
+      - name: Show scanner dump (preview)
+        if: always()
+        run: |
+          if [ -f sonar-dump.properties ]; then
+            echo "===== sonar-dump.properties (head) ====="
+            head -n 80 sonar-dump.properties || true
+            echo "======================================="
+          else
+            echo "sonar-dump.properties not found"
+          fi
+
+      - name: SonarQube Quality Gate
         id: qg
-        uses: SonarSource/sonarcloud-quality-gate-action@master
+        uses: SonarSource/sonarqube-quality-gate-action@v1
         with:
           scanMetadataReportFile: ${{ steps.scan.outputs.scanMetadataReportFile }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
 
       - name: Fail if Quality Gate not passed
         if: always()
@@ -117,6 +134,19 @@ jobs:
             exit 1
           fi
 
+      # — артефакты отладки сканера (логи, отчёт) —
+      - name: Upload scanner artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sonar-artifacts-${{ matrix.component.name }}
+          path: |
+            ${{ matrix.component.workdir }}/.scannerwork/**
+            ${{ matrix.component.workdir }}/sonar-dump.properties
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # — Telegram уведомление —
       - name: Telegram notify (sonar)
         if: always()
         env:
