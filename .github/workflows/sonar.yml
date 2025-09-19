@@ -55,14 +55,7 @@ jobs:
       - name: Run tests with coverage
         run: npm test -- --coverage
 
-      - name: Show coverage folder (debug)
-        if: ${{ matrix.component.name == 'backend' }}
-        run: |
-          echo "PWD=$(pwd)"
-          ls -la || true
-          ls -la coverage || true
-
-      # — Проверка покрытия ≥80% — только backend; поддержка summary ИЛИ lcov —
+      # Проверяем покрытие только для backend (требование ТЗ)
       - name: Enforce 80% coverage (backend only)
         if: ${{ matrix.component.name == 'backend' }}
         run: |
@@ -70,36 +63,38 @@ jobs:
             const fs=require('fs');
             const sum='coverage/coverage-summary.json';
             const lcov='coverage/lcov.info';
-            function pctFromLcov(txt){
-              let hit=0, found=0;
-              for (const m of txt.matchAll(/LF:(\\d+)|LH:(\\d+)/g)){
-                if(m[0].startsWith('LF:')) found += +m[1];
-                else hit += +m[1];
-              }
-              return found ? (hit*100/found) : 0;
+
+            function pctFromSummary(p){
+              const j=JSON.parse(fs.readFileSync(p,'utf8'));
+              return Number(j?.total?.lines?.pct ?? NaN);
             }
-            if (fs.existsSync(sum)) {
-              const j=JSON.parse(fs.readFileSync(sum,'utf8'));
-              const pct=j.total?.lines?.pct ?? 0;
-              console.log('Lines coverage (summary):', pct);
-              if (pct < 80) process.exit(2);
-              process.exit(0);
+            function pctFromLcov(p){
+              const t=fs.readFileSync(p,'utf8');
+              const lf=[...t.matchAll(/^LF:(\d+)$/gm)].reduce((a,m)=>a+Number(m[1]),0);
+              const lh=[...t.matchAll(/^LH:(\d+)$/gm)].reduce((a,m)=>a+Number(m[1]),0);
+              return lf ? (lh*100/lf) : NaN;
             }
-            if (fs.existsSync(lcov)) {
-              const pct=pctFromLcov(fs.readFileSync(lcov,'utf8'));
-              console.log('Lines coverage (lcov):', pct.toFixed(2));
-              if (pct < 80) process.exit(2);
-              process.exit(0);
+
+            let pct = NaN;
+            if (fs.existsSync(sum)) pct = pctFromSummary(sum);
+            else if (fs.existsSync(lcov)) pct = pctFromLcov(lcov);
+
+            if (!Number.isFinite(pct)) {
+              console.error('Coverage report not found or unreadable (no coverage-summary.json or lcov.info)');
+              process.exit(1);
             }
-            console.error('No coverage-summary.json or lcov.info');
-            process.exit(1);
+            console.log('Lines coverage:', pct.toFixed(2));
+            if (pct < 80) {
+              console.error('Coverage below 80%');
+              process.exit(2);
+            }
           "
 
       - name: SonarQube Scan
         id: scan
         uses: SonarSource/sonarqube-scan-action@v3
         with:
-          projectBaseDir: ${{ matrix.component.workdir }}   # важно: сканировать из папки компонента
+          projectBaseDir: ${{ matrix.component.workdir }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -134,10 +129,10 @@ jobs:
           if [ -f coverage/coverage-summary.json ]; then
             COV=$(node -e "const s=require('fs').readFileSync('coverage/coverage-summary.json','utf8');const j=JSON.parse(s);process.stdout.write(String(j.total?.lines?.pct ?? 'n/a'));")
           elif [ -f coverage/lcov.info ]; then
-            COV=$(node -e "const fs=require('fs');const t=fs.readFileSync('coverage/lcov.info','utf8');let hit=0,found=0;for(const m of t.matchAll(/LF:(\\d+)|LH:(\\d+)/g)){if(m[0].startsWith('LF:'))found+=+m[1];else hit+=+m[1];}process.stdout.write(found?(hit*100/found).toFixed(2):'0');")
+            COV=$(node -e "const fs=require('fs');const t=fs.readFileSync('coverage/lcov.info','utf8');const lf=[...t.matchAll(/^LF:(\\d+)$/gm)].reduce((a,m)=>a+Number(m[1]),0);const lh=[...t.matchAll(/^LH:(\\d+)$/gm)].reduce((a,m)=>a+Number(m[1]),0);process.stdout.write(lf?(lh*100/lf).toFixed(2):'n/a');")
           fi
           TEXT="$(cat <<EOF
-          *SonarCloud* — \`${{ matrix.component.name }}\`
+          🔎 *SonarCloud* — \`${{ matrix.component.name }}\`
           *Status:* ${STATUS}
           *Coverage (lines):* ${COV}%
           *Repo:* ${{ github.repository }}
