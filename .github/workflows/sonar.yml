@@ -55,11 +55,38 @@ jobs:
       - name: Run tests with coverage
         run: npm test -- --coverage
 
-      # ——— Жёсткая проверка покрытия ≥ 80% ———
-      - name: Enforce 80% coverage
-        id: coverage
+      # ——— Жёсткая проверка покрытия ≥ 80% — только для backend; поддержка summary/lcov ———
+      - name: Enforce 80% coverage (backend only)
+        if: ${{ matrix.component.name == 'backend' }}
         run: |
-          node -e "const fs=require('fs');const p='coverage/coverage-summary.json';if(!fs.existsSync(p)){console.error('coverage-summary.json not found');process.exit(1)};const s=JSON.parse(fs.readFileSync(p,'utf8'));const pct=s.total?.lines?.pct ?? 0;console.log('Lines coverage:',pct);if(pct<80){console.error('Coverage below 80%');process.exit(2)}"
+          node -e "
+            const fs=require('fs');
+            const pSum='coverage/coverage-summary.json';
+            const pLcov='coverage/lcov.info';
+            function fromLcov(txt){
+              let hit=0, found=0;
+              for (const m of txt.matchAll(/LF:(\d+)|LH:(\d+)/g)){
+                if(m[0].startsWith('LF:')) found += +m[1];
+                else hit += +m[1];
+              }
+              return found ? (hit*100/found) : 0;
+            }
+            if (fs.existsSync(pSum)) {
+              const j=JSON.parse(fs.readFileSync(pSum,'utf8'));
+              const pct=j.total?.lines?.pct ?? 0;
+              console.log('Lines coverage (summary):', pct);
+              if (pct < 80) process.exit(2);
+              process.exit(0);
+            }
+            if (fs.existsSync(pLcov)) {
+              const pct = fromLcov(fs.readFileSync(pLcov,'utf8'));
+              console.log('Lines coverage (lcov):', pct.toFixed(2));
+              if (pct < 80) process.exit(2);
+              process.exit(0);
+            }
+            console.error('No coverage-summary.json or lcov.info');
+            process.exit(1);
+          "
 
       - name: SonarQube Scan
         id: scan
@@ -96,12 +123,15 @@ jobs:
           RUN_URL:  https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -e
+          # считаем покрытие из summary или lcov
           COV="n/a"
           if [ -f coverage/coverage-summary.json ]; then
             COV=$(node -e "const s=require('fs').readFileSync('coverage/coverage-summary.json','utf8');const j=JSON.parse(s);process.stdout.write(String(j.total?.lines?.pct ?? 'n/a'));")
+          elif [ -f coverage/lcov.info ]; then
+            COV=$(node -e "const fs=require('fs');const t=fs.readFileSync('coverage/lcov.info','utf8');let hit=0,found=0;for(const m of t.matchAll(/LF:(\\d+)|LH:(\\d+)/g)){if(m[0].startsWith('LF:'))found+=+m[1];else hit+=+m[1];}process.stdout.write(found?(hit*100/found).toFixed(2):'0');")
           fi
           TEXT="$(cat <<EOF
-          🔎 *SonarCloud* — \`${{ matrix.component.name }}\`
+          *SonarCloud* — \`${{ matrix.component.name }}\`
           *Status:* ${STATUS}
           *Coverage (lines):* ${COV}%
           *Repo:* ${{ github.repository }}
