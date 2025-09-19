@@ -24,41 +24,41 @@ const EditBook = () => {
     });
 
     useEffect(() => {
-        fetchBook();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const load = () => {
+            BookService.getBookById(id)
+                .then((response) => {
+                    const bookData = { ...(response.data || {}) };
+
+                    if (bookData.publicationDate) {
+                        const d = new Date(bookData.publicationDate);
+                        bookData.publicationDate = isNaN(d.getTime())
+                            ? ''
+                            : d.toISOString().split('T')[0];
+                    } else {
+                        bookData.publicationDate = '';
+                    }
+
+                    const ac = Number(bookData.availableCopies);
+                    const tc = Number(bookData.totalCopies);
+                    bookData.availableCopies = Number.isFinite(ac) && ac >= 0 ? ac : 0;
+                    bookData.totalCopies = Number.isFinite(tc) && tc >= 1 ? tc : 1;
+
+                    setBook(bookData);
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    console.error('Error fetching book:', error);
+                    setError('Failed to load book data. The book might not exist or has been removed.');
+                    setLoading(false);
+                    toast.error('Failed to load book data');
+                });
+        };
+
+        load();
     }, [id]);
 
-    const fetchBook = () => {
-        BookService.getBookById(id)
-            .then((response) => {
-                const bookData = { ...(response.data || {}) };
 
-                // безопасно форматируем дату -> YYYY-MM-DD
-                if (bookData.publicationDate) {
-                    const d = new Date(bookData.publicationDate);
-                    bookData.publicationDate = isNaN(d.getTime())
-                        ? ''
-                        : d.toISOString().split('T')[0];
-                } else {
-                    bookData.publicationDate = '';
-                }
 
-                // нормализация количеств
-                const ac = Number(bookData.availableCopies);
-                const tc = Number(bookData.totalCopies);
-                bookData.availableCopies = Number.isFinite(ac) && ac >= 0 ? ac : 0;
-                bookData.totalCopies = Number.isFinite(tc) && tc >= 1 ? tc : 1;
-
-                setBook(bookData);
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error('Error fetching book:', error);
-                setError('Failed to load book data. The book might not exist or has been removed.');
-                setLoading(false);
-                toast.error('Failed to load book data');
-            });
-    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;

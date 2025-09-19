@@ -240,14 +240,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">108x</span>
 <span class="cline-any cline-yes">15x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">108x</span>
 <span class="cline-any cline-yes">15x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">14x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-yes">14x</span>
@@ -258,7 +253,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-yes">14x</span>
 <span class="cline-any cline-yes">14x</span>
@@ -272,6 +266,12 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -389,41 +389,41 @@ const EditBook = () =&gt; {
     });
 &nbsp;
     useEffect(() =&gt; {
-        fetchBook();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        const load = () =&gt; {
+            BookService.getBookById(id)
+                .then((response) =&gt; {
+                    const bookData = { ...(response.data || <span class="branch-1 cbranch-no" title="branch not covered" >{})</span> };
+&nbsp;
+                    if (bookData.publicationDate) {
+                        const d = new Date(bookData.publicationDate);
+                        bookData.publicationDate = isNaN(d.getTime())
+                            ? ''
+                            : d.toISOString().split('T')[0];
+                    } else <span class="missing-if-branch" title="else path not taken" >E</span>{
+<span class="cstat-no" title="statement not covered" >                        bookData.publicationDate = '';</span>
+                    }
+&nbsp;
+                    const ac = Number(bookData.availableCopies);
+                    const tc = Number(bookData.totalCopies);
+                    bookData.availableCopies = Number.isFinite(ac) &amp;&amp; ac &gt;= 0 ? ac : <span class="branch-1 cbranch-no" title="branch not covered" >0;</span>
+                    bookData.totalCopies = Number.isFinite(tc) &amp;&amp; tc &gt;= 1 ? tc : 1;
+&nbsp;
+                    setBook(bookData);
+                    setLoading(false);
+                })
+                .catch((error) =&gt; {
+                    console.error('Error fetching book:', error);
+                    setError('Failed to load book data. The book might not exist or has been removed.');
+                    setLoading(false);
+                    toast.error('Failed to load book data');
+                });
+        };
+&nbsp;
+        load();
     }, [id]);
 &nbsp;
-    const fetchBook = () =&gt; {
-        BookService.getBookById(id)
-            .then((response) =&gt; {
-                const bookData = { ...(response.data || <span class="branch-1 cbranch-no" title="branch not covered" >{})</span> };
 &nbsp;
-                // безопасно форматируем дату -&gt; YYYY-MM-DD
-                if (bookData.publicationDate) {
-                    const d = new Date(bookData.publicationDate);
-                    bookData.publicationDate = isNaN(d.getTime())
-                        ? ''
-                        : d.toISOString().split('T')[0];
-                } else <span class="missing-if-branch" title="else path not taken" >E</span>{
-<span class="cstat-no" title="statement not covered" >                    bookData.publicationDate = '';</span>
-                }
 &nbsp;
-                // нормализация количеств
-                const ac = Number(bookData.availableCopies);
-                const tc = Number(bookData.totalCopies);
-                bookData.availableCopies = Number.isFinite(ac) &amp;&amp; ac &gt;= 0 ? ac : <span class="branch-1 cbranch-no" title="branch not covered" >0;</span>
-                bookData.totalCopies = Number.isFinite(tc) &amp;&amp; tc &gt;= 1 ? tc : 1;
-&nbsp;
-                setBook(bookData);
-                setLoading(false);
-            })
-            .catch((error) =&gt; {
-                console.error('Error fetching book:', error);
-                setError('Failed to load book data. The book might not exist or has been removed.');
-                setLoading(false);
-                toast.error('Failed to load book data');
-            });
-    };
 &nbsp;
     const handleChange = (e) =&gt; {
         const { name, value } = e.target;
@@ -520,7 +520,7 @@ export default EditBook;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-18T23:09:49.093Z
+                at 2025-09-19T07:59:55.231Z
             </div>
         <script src="prettify.js"></script>
         <script>
