@@ -55,7 +55,7 @@ jobs:
       - name: Run tests with coverage
         run: npm test -- --coverage
 
-      # ——— Жёсткая проверка покрытия ≥ 80% — только для backend; поддержка summary/lcov ———
+      # — Проверка покрытия ≥80% — только для backend (summary или lcov)
       - name: Enforce 80% coverage (backend only)
         if: ${{ matrix.component.name == 'backend' }}
         run: |
@@ -65,7 +65,7 @@ jobs:
             const pLcov='coverage/lcov.info';
             function fromLcov(txt){
               let hit=0, found=0;
-              for (const m of txt.matchAll(/LF:(\d+)|LH:(\d+)/g)){
+              for (const m of txt.matchAll(/LF:(\\d+)|LH:(\\d+)/g)){
                 if(m[0].startsWith('LF:')) found += +m[1];
                 else hit += +m[1];
               }
@@ -91,6 +91,8 @@ jobs:
       - name: SonarQube Scan
         id: scan
         uses: SonarSource/sonarqube-scan-action@v3
+        with:
+          projectBaseDir: ${{ matrix.component.workdir }}   # <— ключевая правка
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -103,7 +105,6 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # Явно падаем, если Quality Gate не пройден (по статусу из outputs)
       - name: Fail if Quality Gate not passed
         if: always()
         run: |
@@ -113,7 +114,6 @@ jobs:
             exit 1
           fi
 
-      # ——— Telegram уведомление (всегда) ———
       - name: Telegram notify (sonar)
         if: always()
         env:
@@ -123,7 +123,6 @@ jobs:
           RUN_URL:  https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -e
-          # считаем покрытие из summary или lcov
           COV="n/a"
           if [ -f coverage/coverage-summary.json ]; then
             COV=$(node -e "const s=require('fs').readFileSync('coverage/coverage-summary.json','utf8');const j=JSON.parse(s);process.stdout.write(String(j.total?.lines?.pct ?? 'n/a'));")
@@ -131,7 +130,7 @@ jobs:
             COV=$(node -e "const fs=require('fs');const t=fs.readFileSync('coverage/lcov.info','utf8');let hit=0,found=0;for(const m of t.matchAll(/LF:(\\d+)|LH:(\\d+)/g)){if(m[0].startsWith('LF:'))found+=+m[1];else hit+=+m[1];}process.stdout.write(found?(hit*100/found).toFixed(2):'0');")
           fi
           TEXT="$(cat <<EOF
-          *SonarCloud* — \`${{ matrix.component.name }}\`
+          🔎 *SonarCloud* — \`${{ matrix.component.name }}\`
           *Status:* ${STATUS}
           *Coverage (lines):* ${COV}%
           *Repo:* ${{ github.repository }}
