@@ -1,0 +1,51 @@
+name: CD to Minikube
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    # Раннится на твоём ПК (self-hosted) где есть доступ к minikube
+    runs-on: [ self-hosted, minikube ]
+
+    env:
+      K8S_NAMESPACE: library
+      OWNER: ${{ github.repository_owner }}
+
+    steps:
+      - name: Set lowercase owner
+        id: ow
+        run: echo "owner_lc=${OWNER,,}" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Чтобы подтянуть свежие образы latest с GHCR
+      - name: Force image pull on next rollout
+        run: |
+          kubectl -n ${K8S_NAMESPACE} set image deploy/library-backend backend=ghcr.io/${{ steps.ow.outputs.owner_lc }}/library-backend:latest --record || true
+          kubectl -n ${K8S_NAMESPACE} set image deploy/library-frontend frontend=ghcr.io/${{ steps.ow.outputs.owner_lc }}/library-frontend:latest --record || true
+
+      - name: Apply manifests
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/backend-deploy.yaml
+          kubectl apply -f k8s/frontend-deploy.yaml
+          kubectl apply -f k8s/ingress.yaml
+
+      - name: Wait for rollout (backend)
+        run: kubectl -n ${K8S_NAMESPACE} rollout status deploy/library-backend --timeout=120s
+
+      - name: Wait for rollout (frontend)
+        run: kubectl -n ${K8S_NAMESPACE} rollout status deploy/library-frontend --timeout=120s
+
+      - name: Check frontend /health via cluster IP
+        run: |
+          # Проверим сервис внутри кластера
+          kubectl -n ${K8S_NAMESPACE} run tmp-curl --image=curlimages/curl:8.10.1 --rm -i --restart=Never -- \
+            curl -sS http://library-frontend.library.svc.cluster.local/health
+
+      - name: Echo ingress url
+        run: echo "Open http://library.local"
