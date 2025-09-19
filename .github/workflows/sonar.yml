@@ -92,7 +92,7 @@ jobs:
         id: scan
         uses: SonarSource/sonarqube-scan-action@v3
         with:
-          projectBaseDir: ${{ matrix.component.workdir }}
+          projectBaseDir: ${{ matrix.component.workdir }}   # важно: сканировать из каталога компонента
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
