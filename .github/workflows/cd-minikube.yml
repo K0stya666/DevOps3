@@ -7,125 +7,52 @@ on:
 
 jobs:
   deploy:
-    runs-on: [ self-hosted, minikube ]  # твой локальный раннер с доступом к minikube
+    # Раннится на твоём ПК (self-hosted) где есть доступ к minikube
+    runs-on: [ self-hosted, minikube ]
+
     env:
       K8S_NAMESPACE: library
       OWNER: ${{ github.repository_owner }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Set lowercase owner
         id: ow
-        shell: bash
-        run: echo "owner_lc=${OWNER,,}" >> "$GITHUB_OUTPUT"
+        run: echo "owner_lc=${OWNER,,}" >> $GITHUB_OUTPUT
 
-      - name: Use kubeconfig of runner user
-        shell: bash
-        run: echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
 
-      - name: kubectl sanity checks
-        shell: bash
+      # Чтобы подтянуть свежие образы latest с GHCR
+      - name: Force image pull on next rollout
         run: |
-          set -euo pipefail
-          kubectl version --client=true
-          kubectl config current-context
-          kubectl get nodes -o wide
+          kubectl -n ${K8S_NAMESPACE} set image deploy/library-backend backend=ghcr.io/${{ steps.ow.outputs.owner_lc }}/library-backend:latest --record || true
+          kubectl -n ${K8S_NAMESPACE} set image deploy/library-frontend frontend=ghcr.io/${{ steps.ow.outputs.owner_lc }}/library-frontend:latest --record || true
 
-      - name: Ensure namespace exists
-        shell: bash
+      - name: Apply manifests
         run: |
-          set -euo pipefail
-          kubectl get ns "${K8S_NAMESPACE}" >/dev/null 2>&1 || \
-            kubectl create namespace "${K8S_NAMESPACE}"
-          kubectl -n "${K8S_NAMESPACE}" get all || true
-
-      # (Опционально) создать/обновить секрет ghcr-pull, если задано в secrets
-      - name: Ensure ghcr-pull secret (optional)
-        if: ${{ secrets.GHCR_USER != '' && secrets.GHCR_PAT != '' }}
-        shell: bash
-        env:
-          GHCR_USER: ${{ secrets.GHCR_USER }}
-          GHCR_PAT: ${{ secrets.GHCR_PAT }}
-        run: |
-          set -euo pipefail
-          kubectl -n "${K8S_NAMESPACE}" delete secret ghcr-pull >/dev/null 2>&1 || true
-          kubectl -n "${K8S_NAMESPACE}" create secret docker-registry ghcr-pull \
-            --docker-server=ghcr.io \
-            --docker-username="${GHCR_USER}" \
-            --docker-password="${GHCR_PAT}" \
-            --docker-email="none@example.com"
-          kubectl -n "${K8S_NAMESPACE}" get secret ghcr-pull
-
-      # Порядок применения: конфиги/секреты → база → backend → frontend → мониторинг/HPA → ingress
-      - name: Apply base manifests
-        shell: bash
-        run: |
-          set -euo pipefail
           kubectl apply -f k8s/namespace.yaml
-          # конфиги/секреты приложения
-          if [ -f k8s/config-secrets.yaml ]; then kubectl apply -f k8s/config-secrets.yaml; fi
-          # база (если используешь postgres в кластере)
-          if [ -f k8s/postgres.yaml ]; then kubectl apply -f k8s/postgres.yaml; fi
-
-      - name: Apply backend
-        shell: bash
-        run: |
-          set -euo pipefail
-          # у тебя файлы переименованы: backend.yaml / frontend.yaml
           kubectl apply -f k8s/backend.yaml
-
-      - name: Apply frontend
-        shell: bash
-        run: |
-          set -euo pipefail
           kubectl apply -f k8s/frontend.yaml
-
-      - name: Apply monitoring & HPA (if present)
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [ -f k8s/servicemonitor-backend.yaml ]; then kubectl apply -f k8s/servicemonitor-backend.yaml; fi
-          if [ -f k8s/hpa.yaml ]; then kubectl apply -f k8s/hpa.yaml; fi
-
-      - name: Apply ingress
-        shell: bash
-        run: |
-          set -euo pipefail
           kubectl apply -f k8s/ingress.yaml
-          kubectl -n "${K8S_NAMESPACE}" get ingress
-
-      # Переставляем теги на latest (на случай, если шаблоны с фикс-версиями)
-      - name: Set images to latest (force new rollout)
-        shell: bash
-        run: |
-          set -euo pipefail
-          kubectl -n "${K8S_NAMESPACE}" set image deploy/library-backend \
-            backend=ghcr.io/${{ steps.ow.outputs.owner_lc }}/library-backend:latest --record || true
-          kubectl -n "${K8S_NAMESPACE}" set image deploy/library-frontend \
-            frontend=ghcr.io/${{ steps.ow.outputs.owner_lc }}/library-frontend:latest --record || true
-
-      - name: Describe pods (pre-rollout)
-        shell: bash
-        run: |
-          kubectl -n "${K8S_NAMESPACE}" get deploy,po,svc -o wide
+          kubectl apply -f k8s/config-secrets.yaml
+          kubectl apply -f k8s/postgres.yaml
+          
+          
+          
+          
+          kubectl apply -f k8s/servicemonitor-backend.yaml
+          
+          kubectl apply -f k8s/hpa.yaml
 
       - name: Wait for rollout (backend)
-        shell: bash
-        run: kubectl -n "${K8S_NAMESPACE}" rollout status deploy/library-backend --timeout=180s
+        run: kubectl -n ${K8S_NAMESPACE} rollout status deploy/library-backend --timeout=120s
 
       - name: Wait for rollout (frontend)
-        shell: bash
-        run: kubectl -n "${K8S_NAMESPACE}" rollout status deploy/library-frontend --timeout=180s
+        run: kubectl -n ${K8S_NAMESPACE} rollout status deploy/library-frontend --timeout=120s
 
-      - name: Probe frontend /health in-cluster
-        shell: bash
+      - name: Check frontend /health via cluster IP
         run: |
-          set -euo pipefail
-          kubectl -n "${K8S_NAMESPACE}" run tmp-curl --image=curlimages/curl:8.10.1 --rm -i --restart=Never -- \
-            curl -fsS http://library-frontend.${K8S_NAMESPACE}.svc.cluster.local/health
+          # Проверим сервис внутри кластера
+          kubectl -n ${K8S_NAMESPACE} run tmp-curl --image=curlimages/curl:8.10.1 --rm -i --restart=Never -- \
+            curl -sS http://library-frontend.library.svc.cluster.local/health
 
-      - name: Echo ingress URL
-        shell: bash
+      - name: Echo ingress url
         run: echo "Open http://library.local"
