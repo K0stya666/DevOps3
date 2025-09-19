@@ -90,21 +90,19 @@ jobs:
             }
           "
 
-      # —— S O N A R — с расширенным логированием ——
+      # ——— SONAR с подробными логами (без SONAR_SCANNER_OPTS) ———
       - name: SonarQube Scan
         id: scan
         uses: SonarSource/sonarqube-scan-action@v3
         with:
           projectBaseDir: ${{ matrix.component.workdir }}
-          # подробные логи и дамп применённых свойств
           args: >
+            -X
             -Dsonar.verbose=true
             -Dsonar.scanner.dumpToFile=sonar-dump.properties
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
-          # Доп. debug для CLI (аналог -X)
-          SONAR_SCANNER_OPTS: "-X"
 
       - name: Show scanner dump (preview)
         if: always()
@@ -117,8 +115,10 @@ jobs:
             echo "sonar-dump.properties not found"
           fi
 
+      # Запускаем QG только если сканер выдал файл отчёта
       - name: SonarQube Quality Gate
         id: qg
+        if: ${{ steps.scan.outputs.scanMetadataReportFile != '' }}
         uses: SonarSource/sonarqube-quality-gate-action@v1
         with:
           scanMetadataReportFile: ${{ steps.scan.outputs.scanMetadataReportFile }}
@@ -126,7 +126,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Fail if Quality Gate not passed
-        if: always()
+        if: ${{ always() && steps.scan.outputs.scanMetadataReportFile != '' }}
         run: |
           echo "Quality Gate status: ${{ steps.qg.outputs.quality-gate-status }}"
           if [ "${{ steps.qg.outputs.quality-gate-status }}" != "PASSED" ]; then
@@ -134,7 +134,7 @@ jobs:
             exit 1
           fi
 
-      # — артефакты отладки сканера (логи, отчёт) —
+      # — артефакты для отладки —
       - name: Upload scanner artifacts
         if: always()
         uses: actions/upload-artifact@v4
