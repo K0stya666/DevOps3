@@ -31,9 +31,18 @@ jobs:
       - name: Apply manifests
         run: |
           kubectl apply -f k8s/namespace.yaml
-          kubectl apply -f k8s/backend-deploy.yaml
-          kubectl apply -f k8s/frontend-deploy.yaml
+          kubectl apply -f k8s/backend.yaml
+          kubectl apply -f k8s/frontend.yaml
           kubectl apply -f k8s/ingress.yaml
+          kubectl apply -f k8s/config-secrets.yaml
+          kubectl apply -f k8s/postgres.yaml
+          
+          
+          
+          
+          kubectl apply -f k8s/servicemonitor-backend.yaml
+          
+          kubectl apply -f k8s/hpa.yaml
 
       - name: Wait for rollout (backend)
         run: kubectl -n ${K8S_NAMESPACE} rollout status deploy/library-backend --timeout=120s
