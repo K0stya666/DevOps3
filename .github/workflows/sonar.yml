@@ -99,13 +99,14 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
 
-      - name: SonarQube Quality Gate
+      - name: SonarCloud Quality Gate
         id: qg
-        uses: SonarSource/sonarqube-quality-gate-action@v1
+        uses: SonarSource/sonarcloud-quality-gate-action@master
         with:
           scanMetadataReportFile: ${{ steps.scan.outputs.scanMetadataReportFile }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
 
       - name: Fail if Quality Gate not passed
         if: always()
