@@ -86,7 +86,7 @@ jobs:
         run: |
           set -e
           TEXT="$(cat <<EOF
-          *Build & Push* — \`${{ matrix.component.name }}\`
+          🐳 *Build & Push* — \`${{ matrix.component.name }}\`
           *Status:* ${STATUS}
           *Repo:* ${{ github.repository }}
           *Ref:*  ${{ github.ref_name }}
