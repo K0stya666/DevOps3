@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage lines-valid="76" lines-covered="74" line-rate="0.9736" branches-valid="20" branches-covered="17" branch-rate="0.85" timestamp="1758187328239" complexity="0" version="0.1">
+<coverage lines-valid="76" lines-covered="74" line-rate="0.9736" branches-valid="20" branches-covered="17" branch-rate="0.85" timestamp="1758265390400" complexity="0" version="0.1">
   <sources>
     <source>/home/elise/projects/Виктория А/DevOps3/app/backend</source>
   </sources>

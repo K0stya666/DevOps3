@@ -55,15 +55,15 @@ jobs:
       - name: Run tests with coverage
         run: npm test -- --coverage
 
-      # — Проверка покрытия ≥80% — только для backend (summary или lcov)
+      # — Проверка покрытия ≥80% — только backend; поддержка summary или lcov —
       - name: Enforce 80% coverage (backend only)
         if: ${{ matrix.component.name == 'backend' }}
         run: |
           node -e "
             const fs=require('fs');
-            const pSum='coverage/coverage-summary.json';
-            const pLcov='coverage/lcov.info';
-            function fromLcov(txt){
+            const sum='coverage/coverage-summary.json';
+            const lcov='coverage/lcov.info';
+            function pctFromLcov(txt){
               let hit=0, found=0;
               for (const m of txt.matchAll(/LF:(\\d+)|LH:(\\d+)/g)){
                 if(m[0].startsWith('LF:')) found += +m[1];
@@ -71,15 +71,15 @@ jobs:
               }
               return found ? (hit*100/found) : 0;
             }
-            if (fs.existsSync(pSum)) {
-              const j=JSON.parse(fs.readFileSync(pSum,'utf8'));
+            if (fs.existsSync(sum)) {
+              const j=JSON.parse(fs.readFileSync(sum,'utf8'));
               const pct=j.total?.lines?.pct ?? 0;
               console.log('Lines coverage (summary):', pct);
               if (pct < 80) process.exit(2);
               process.exit(0);
             }
-            if (fs.existsSync(pLcov)) {
-              const pct = fromLcov(fs.readFileSync(pLcov,'utf8'));
+            if (fs.existsSync(lcov)) {
+              const pct=pctFromLcov(fs.readFileSync(lcov,'utf8'));
               console.log('Lines coverage (lcov):', pct.toFixed(2));
               if (pct < 80) process.exit(2);
               process.exit(0);
@@ -92,7 +92,7 @@ jobs:
         id: scan
         uses: SonarSource/sonarqube-scan-action@v3
         with:
-          projectBaseDir: ${{ matrix.component.workdir }}   # <— ключевая правка
+          projectBaseDir: ${{ matrix.component.workdir }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -114,6 +114,7 @@ jobs:
             exit 1
           fi
 
+      # — Telegram уведомление (всегда); считаем покрытие из summary или lcov —
       - name: Telegram notify (sonar)
         if: always()
         env:
@@ -130,7 +131,7 @@ jobs:
             COV=$(node -e "const fs=require('fs');const t=fs.readFileSync('coverage/lcov.info','utf8');let hit=0,found=0;for(const m of t.matchAll(/LF:(\\d+)|LH:(\\d+)/g)){if(m[0].startsWith('LF:'))found+=+m[1];else hit+=+m[1];}process.stdout.write(found?(hit*100/found).toFixed(2):'0');")
           fi
           TEXT="$(cat <<EOF
-          🔎 *SonarCloud* — \`${{ matrix.component.name }}\`
+          *SonarCloud* — \`${{ matrix.component.name }}\`
           *Status:* ${STATUS}
           *Coverage (lines):* ${COV}%
           *Repo:* ${{ github.repository }}
